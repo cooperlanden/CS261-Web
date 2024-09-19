@@ -3,12 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Basic Website</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Map Integration</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/osmtogeojson"></script>
 </head>
 <body>
-    <h1>Welcome to My Website</h1>
-    <button id="myButton">Click Me!</button>
-    <script src="script.js"></script>
+    <h1>My Map</h1>
+    <div id="map" style="width: 600px; height: 400px;"></div>
+    <script>
+    // Initialize the map and set its view to the chosen geographical coordinates and zoom level
+    var map = L.map('map').setView([39.1487, -84.4780], 13);
+
+    // Add a tile layer to the map (you can use OpenStreetMap tiles)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Load the .osm file (you may need to convert it to GeoJSON format first)
+    fetch('path/to/your/map.osm')
+        .then(response => response.text())
+        .then(data => {
+            var parser = new DOMParser();
+            var xmlDoc = parser.parseFromString(data, "text/xml");
+            var geojson = osmtogeojson(xmlDoc);
+            L.geoJSON(geojson).addTo(map);
+        });
+    </script>
 </body>
 </html>
