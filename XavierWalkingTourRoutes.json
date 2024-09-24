@@ -1,0 +1,123 @@
+{
+    "Xavier Walking Tour Routes": {
+      "Default Route": [
+        "Walter Schott Hall",
+        "Our Lady of Peace Chapel",
+        "Edgecliff Hall",
+        "Schmidt Hall",
+        "Hinkle Hall",
+        "McDonald Library",
+        "Alter Hall",
+        "Albers Hall",
+        "Logan Hall",
+        "Hailstones Hall",
+        "Bellarmine Chapel",
+        "Gallagher Student Center",
+        {
+          "Residence Halls": [
+            "Brockman Hall",
+            "Buenger Hall",
+            "Kuhlman Hall",
+            "Husman Hall",
+            "Justice Hall"
+          ]
+        },
+        "Cintas Center",
+        "Cohen Center",
+        "Flynn Hall",
+        "Health United Building (HUB)",
+        "Hoff Dining Commons",
+        "Smith Hall",
+        "Conaton Learning Commons (CLC)"
+      ],
+      "College of Arts and Sciences": [
+        "Walter Schott Hall",
+        "Our Lady of Peace Chapel",
+        "Edgecliff Hall",
+        "Schmidt Hall",
+        "Hinkle Hall",
+        "McDonald Library",
+        "Alter Hall",
+        "Albers Hall",
+        "Logan Hall",
+        "Bellarmine Chapel",
+        "Gallagher Student Center",
+        "Resident Mall",
+        "Cintas Center",
+        "Cohen Center",
+        "Flynn Hall",
+        "HUB",
+        "Hoff Dining Commons",
+        "CLC"
+      ],
+      "Williams College of Business": [
+        "Schott Hall",
+        "Our Lady of Peace Chapel",
+        "Schmidt Hall",
+        "McDonald Library",
+        "Alter Hall",
+        "Bellarmine Chapel",
+        "Gallagher Student Center",
+        "Residence Halls",
+        "Cintas Center",
+        "Flynn Hall",
+        "HUB",
+        "Hoff Dining Commons",
+        "Smith Hall",
+        "CLC"
+      ],
+      "College of Nursing": [
+        "Schott Hall",
+        "Our Lady of Peace Chapel",
+        "Schmidt Hall",
+        "McDonald Library",
+        "Alter Hall",
+        "Bellarmine Chapel",
+        "GSC",
+        "Residence Halls",
+        "Cintas Center",
+        "Flynn Hall",
+        "HUB",
+        "Hoff Dining Commons",
+        "CLC"
+      ],
+      "College of Professional Sciences": [
+        "Schott Hall",
+        "Elet Hall",
+        "Our Lady of Peace Chapel",
+        "Schmidt Hall",
+        "McDonald Library",
+        "Alter Hall",
+        "Hailstones Hall",
+        "Bellarmine Chapel",
+        "GSC",
+        "Residence Halls",
+        "Cintas Center",
+        "Cohen Center",
+        "Flynn Hall",
+        "HUB",
+        "Hoff Dining Commons",
+        "CLC"
+      ],
+      "Ramp Friendly Tour": {
+        "Start": "Schott Hall",
+        "Address": "1496 Dana Ave, Cincinnati, OH 45207",
+        "Directions": [
+          "When facing Schott, head to the right towards the McDonald Library and the Conaton Learning Commons, taking the path to the double doors. This will place you on the 2nd floor of the CLC.",
+          "Keep walking through the building; there will be an elevator on the right. Head up to the 3rd floor.",
+          "To go to Williams College of Business, exit the CLC doors and head on the rightmost path. Elevators are in the center of the building.",
+          "Head to Justice Hall next where you can visit the cafeteria, entering through the three doors to the main hall.",
+          "Exit those same doors and begin the travel to the Health United Building. Enter the elevator on the left and press the button for the 1st Floor. This elevator will take you to academic classrooms. Nursing labs will be on the 2nd Floor.",
+          "To visit the rec center, exit the elevator on the 1st floor. There is a second elevator on the rec center side.",
+          "The next building is Cintas. Head through the main entrance doors. There will be a room immediately upon walking in called the Joseph Suite. If this door is locked, continue along the left of the concourse until crossing the accessible seating area. Leave the same way.",
+          "From there, head across the street to Husman Hall and enter through the backside. Exit the front.",
+          "Next, head to Gallagher Student Center.",
+          "Then head to Bellarmine.",
+          "Exit and head to Alter Hall. You will be on the first floor. To exit, head down the hall; there will be an elevator to the right at the end of the hall. Select 1B; then leave Alter through those doors.",
+          "Upon exiting, you will be facing the Academic Mall. From Right to Left, the buildings will be Linder, Logan, Albers, Hinkle, Schmidt, and Edgecliff. Head to the left; this will take you back up to Schott Hall."
+        ]
+      }
+    }
+  }
+  
+  
