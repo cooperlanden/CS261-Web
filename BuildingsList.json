@@ -1,0 +1,108 @@
+{
+    "Buildings": [
+        {
+            "name": "Walter Schott Hall",
+            "college": ""
+        },
+        {
+            "name": "Our Lady of Peace Chapel",
+            "college": ""
+        },
+        {
+            "name": "Edgecliff Hall",
+            "college": "arts_and_sciences"
+        },
+        {
+            "name": "Schmidt Hall",
+            "college": ""
+        },
+        {
+            "name": "Hinkle Hall",
+            "college": "arts_and_sciences"
+        },
+        {
+            "name": "McDonald Library",
+            "college": ""
+        },
+        {
+            "name": "Alter Hall",
+            "college": ""
+        },
+        {
+            "name": "Albers Hall",
+            "college": "arts_and_sciences"
+        },
+        {
+            "name": "Logan Hall",
+            "college": "arts_and_sciences"
+        },
+        {
+            "name": "Lindner Family Physics Building",
+            "college": "arts_and_sciences"
+        },
+        {
+            "name": "Hailstones Hall",
+            "college": "professional_sciences"
+        },
+        {
+            "name": "Bellarmine Chapel",
+            "college": ""
+        },
+        {
+            "name": "Gallagher Student Center",
+            "college": ""
+        },
+        {
+            "name": "Brockman Hall",
+            "college": ""
+        },
+        {
+            "name": "Buenger Hall",
+            "college": ""
+        },
+        {
+            "name": "Kuhlman Hall",
+            "college": ""
+        },
+        {
+            "name": "Husman Hall",
+            "college": ""
+        },
+        {
+            "name": "Justice Hall",
+            "college": ""
+        },
+        {
+            "name": "Cintas Center",
+            "college": ""
+        },
+        {
+            "name": "Cohen Center",
+            "college": ["arts_and_sciences", "professional_sciences"]
+        },
+        {
+            "name": "Flynn Hall",
+            "college": ""
+        },
+        {
+            "name": "Health United Building (HUB)",
+            "college": "professional_sciences"
+        },
+        {
+            "name": "Hoff Dining Commons",
+            "college": ""
+        },
+        {
+            "name": "Smith Hall",
+            "college": "business"
+        },
+        {
+            "name": "Conaton Learning Commons",
+            "college": ""
+        },
+        {
+            "name": "Elet Hall",
+            "college": "professional_sciences"
+        }
+    ]
+}
