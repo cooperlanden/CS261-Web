@@ -7,10 +7,70 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/osmtogeojson"></script>
+    <style>
+        body {
+            display: flex; /* Use Flexbox for layout */
+            margin: 0;
+            padding: 20px;
+        }
+        #map {
+            width: 60%; /* Map takes 60% of the width */
+            height: 400px;
+            margin-right: 20px; /* Space between map and list */
+        }
+        #sidebar {
+            width: 35%; /* Sidebar takes 35% of the width */
+            padding: 15px;
+            border: 1px solid #0C2340; /* Border around the sidebar */
+            border-radius: 5px; /* Rounded corners */
+            background-color: #D7D3CC(0, 0%, 98%); /* Light background color */
+        }
+        #buildingList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #buildingList li {
+            padding: 8px; /* Padding for list items */
+            border-bottom: 1px solid #ddd; /* Separator between list items */
+        }
+        #buildingList li:last-child {
+            border-bottom: none; /* Remove separator for the last item */
+    </style>
 </head>
 <body>
-    <h1>My Map</h1>
-    <div id="map" style="width: 600px; height: 400px;"></div>
+    <div>  
+        <h1>Xavier Campus Map</h1>
+        <div id="map" style="width: 600px; height: 400px;"></div>
+    </div>
+
+    <div id="sidebar">
+        <h2>Places to Visit 
+            <select id="collegeSelect">
+                <option value="">All Colleges</option> <!-- Default option -->
+                <option value="arts_and_sciences">College of Arts and Sciences</option>
+                <option value="nursing">College of Nursing</option>
+                <option value="professional_sciences">College of Professional Sciences</option>
+                <option value="business">Williams College of Business</option>
+            </select>
+            <button id="filterButton">Filter</button>
+        </h2>
+        <select id="buildingSelect">
+            <option value="">Select a Building...</option> <!-- Default option -->
+        </select>
+
+    </select>
+
+    <!-- Area for displaying the building image -->
+    <div id="imageContainer">
+    <h3>Building Image</h3>
+    <img id="buildingImage" src="" alt="Building Image" style="display: none; max-width: 75%; height: auto;" />
+
+    <!-- Area for building information -->
+    <div id="buildingInfo" style="margin-top: 10px;">
+        <h3>Building Information</h3>
+        <p id="buildingDescription"></p>
+    </div>
+
     <script>
     // Initialize the map and set its view to the chosen geographical coordinates and zoom level
     var map = L.map('map').setView([39.1487, -84.4780], 13);
@@ -29,6 +89,82 @@
             var geojson = osmtogeojson(xmlDoc);
             L.geoJSON(geojson).addTo(map);
         });
+    
+        let buildingsData = []; // For building data
+        let buildingDescriptions = {}; // For building descriptions
+
+// Fetch the BuildingsList.json file
+fetch('BuildingsList.json')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // Check what data is being fetched
+        buildingsData = data.Buildings;
+
+        // Sort buildings alphabetically by name
+        buildingsData.sort((a, b) => a.name.localeCompare(b.name));
+
+        const dropdown = document.getElementById('buildingSelect');
+        buildingsData.forEach(building => {
+            const option = document.createElement('option');
+            option.value = building.name;
+            option.textContent = building.name;
+            dropdown.appendChild(option);
+        });
+    })
+    .catch(error => console.error('Error fetching the JSON file:', error));
+
+// Filter buildings by college
+document.getElementById('filterButton').addEventListener('click', () => {
+    const selectedCollege = document.getElementById('collegeSelect').value;
+    const dropdown = document.getElementById('buildingSelect');
+
+    // Clear existing options
+    dropdown.innerHTML = '<option value="">Select a Building...</option>';
+
+    buildingsData.forEach(building => {
+        if (Array.isArray(building.college)) {
+            if (building.college.includes(selectedCollege)) {
+                const option = document.createElement('option');
+                option.value = building.name;
+                option.textContent = building.name;
+                dropdown.appendChild(option);
+            }
+        } else if (building.college === selectedCollege) {
+            const option = document.createElement('option');
+            option.value = building.name;
+            option.textContent = building.name;
+            dropdown.appendChild(option);
+        }
+    });
+});
+
+    // Display image and information when a building is selected
+    document.getElementById('buildingSelect').addEventListener('change', (event) => {
+    const selectedBuilding = event.target.value;
+    const building = buildingsData.find(b => b.name === selectedBuilding);
+    
+    const imageElement = document.getElementById('buildingImage');
+    const descriptionElement = document.getElementById('buildingDescription');
+    
+    if (building) {
+        imageElement.src = building.image; // Set the image source
+        imageElement.style.display = 'block'; // Show the image
+        
+        descriptionElement.textContent = building.description || 'No description available.'; // Set the description
+    } else {
+        imageElement.src = '';
+        imageElement.style.display = 'none'; // Hide the image if no selection
+        descriptionElement.textContent = ''; // Clear the description
+    }
+});
+
+
+
     </script>
 </body>
 </html>
