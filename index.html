@@ -98,7 +98,44 @@
             var geojson = osmtogeojson(xmlDoc);
             L.geoJSON(geojson).addTo(map);
         });
+        // Add a marker for a specific location
+    //Smith Hall
+    var marker = L.marker([39.147316, -84.473885]).addTo(map);
+
+    //Conation Learning Commons
+    var marker = L.marker([39.147405, -84.474905]).addTo(map);
+
+    //Mcdonald Memorial Library
+    var marker = L.marker([39.147796, -84.475486]).addTo(map);
     
+    //Schott Hall
+    var marker = L.marker([39.147446, -84.475782]).addTo(map);
+    
+    //Edgecliff
+    var marker = L.marker([39.147791, -84.476828]).addTo(map);
+    
+    //Schmidt Hall
+    var marker = L.marker([39.148060, -84.476369]).addTo(map);
+    
+    //Hinkle Hall
+    var marker = L.marker([39.148304, -84.475929]).addTo(map);
+    
+    //Alter Hall
+    var marker = L.marker([39.148372, -84.475052]).addTo(map);
+    
+    //Logan Hall
+    var marker = L.marker([39.149000, -84.475261]).addTo(map);
+    
+    //Lindner Hall
+    var marker = L.marker([39.149256, -84.475015]).addTo(map);
+
+    //Gallagher
+    var marker = L.marker([39.149672, -84.474489]).addTo(map);
+
+    //Albers
+    var marker = L.marker([39.148683, -84.475669]).addTo(map);
+
+
         let buildingsData = []; // For building data
         let buildingDescriptions = {}; // For building descriptions
 
