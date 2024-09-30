@@ -69,6 +69,15 @@
     <div id="buildingInfo" style="margin-top: 10px;">
         <h3>Building Information</h3>
         <p id="buildingDescription"></p>
+
+    <!-- Audio section -->
+    <h3>Building Audio</h3>
+    <audio id="buildingAudio" controls style="display: none;">
+        <source id="audioSource" src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <p id="noAudioMessage" style="display: none;">No audio available.</p>
+
     </div>
 
     <script>
@@ -150,17 +159,40 @@ document.getElementById('filterButton').addEventListener('click', () => {
     
     const imageElement = document.getElementById('buildingImage');
     const descriptionElement = document.getElementById('buildingDescription');
+    const audioElement = document.getElementById('buildingAudio');
+    const audioSource = document.getElementById('audioSource');
+    const noAudioMessage = document.getElementById('noAudioMessage'); 
+
     
     if (building) {
         imageElement.src = building.image; // Set the image source
         imageElement.style.display = 'block'; // Show the image
         
         descriptionElement.textContent = building.description || 'No description available.'; // Set the description
+
+        // Handle audio
+        if (building.audio && building.audio.trim !== '') {
+            // If audio is available
+            audioSource.src = building.audio;
+            audioElement.style.display = 'block'; // Show the audio player
+            noAudioMessage.style.display = 'none'; // Hide the "No audio available" message
+            audioElement.load(); // Load the new audio file
+        } else {
+            // If no audio is available
+            audioElement.style.display = 'none'; // Hide the audio player
+            noAudioMessage.style.display = 'block'; // Show the "No audio available" message
+        }
     } else {
+    // Reset the fields if nothing is selected
         imageElement.src = '';
         imageElement.style.display = 'none'; // Hide the image if no selection
         descriptionElement.textContent = ''; // Clear the description
-    }
+        audioElement.style.display = 'none'; // Hide the audio if no selection
+        noAudioMessage.style.display = 'none'; // Hide the "No audio available" message
+        }
+    
+
+
 });
 
 
