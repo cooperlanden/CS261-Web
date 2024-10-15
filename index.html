@@ -10,6 +10,7 @@
     <style>
         body {
             display: flex; /* Use Flexbox for layout */
+            flex-wrap: nowrap;
             margin: 0;
             padding: 20px;
         }
@@ -19,11 +20,41 @@
             margin-right: 20px; /* Space between map and list */
         }
         #sidebar {
-            width: 35%; /* Sidebar takes 35% of the width */
+            flex: 0 0 35%; /* Sidebar takes 35% of the width */
             padding: 15px;
             border: 1px solid #0C2340; /* Border around the sidebar */
             border-radius: 5px; /* Rounded corners */
             background-color: #D7D3CC(0, 0%, 98%); /* Light background color */
+            margin-right: 275px;
+        }
+        #routesContainer {
+            flex: 1;
+            max-width: 93%;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #0C2340;;
+            border-radius: 5px;
+            background-color: #D7D3CC(0, 0%, 98%);
+            overflow-wrap: break-word; /* Matches the width of the map */
+        }
+        #routeDescription {
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-wrap: break-word; /* Ensure long text wraps within the container */
+        }
+        #routesList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #routesList li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        ul {
+            padding-left: 20px; /* Ensure bullet points are properly indented */
+        }
+        #routesList li:last-child {
+            border-bottom: none;
         }
         #buildingList {
             list-style-type: none;
@@ -41,8 +72,20 @@
     <div>  
         <h1>Xavier Campus Map</h1>
         <div id="map" style="width: 600px; height: 400px;"></div>
+
+        <!-- Route dropdown and description area -->
+        <div id="routesContainer">
+        <h2>Routes to Take</h2>
+        <select id="routeSelect">
+            </select>
+            <button id="selectButton">Select</button>
+
+        <!-- Route details -->
+        <p id="routeDescription"></p>
+        </div>
     </div>
 
+    
     <div id="sidebar">
         <h2>Places to Visit 
             <select id="collegeSelect">
@@ -236,6 +279,79 @@ document.getElementById('filterButton').addEventListener('click', () => {
     });
 });
 
+let routesData = []; // For routes data
+
+// Fetch the XavierWalkingTourRoutes.json file
+fetch('XavierWalkingTourRoutes.json')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // Check what data is being fetched
+        routesData = data["Xavier Walking Tour Routes"];
+
+
+        // Populate the dropdown
+        const dropdown = document.getElementById('routeSelect');
+        routesData.forEach(route => {
+            const option = document.createElement('option');
+            option.value = route.name;
+            option.textContent = route.name;
+            dropdown.appendChild(option);
+        });
+    })
+    .catch(error => console.error('Error fetching the JSON file:', error));
+
+    document.getElementById('selectButton').addEventListener('click', () => {
+    const selectedRouteName = document.getElementById('routeSelect').value;
+    const route = routesData.find(r => r.name === selectedRouteName);
+
+    const routeDescriptionElement = document.getElementById('routeDescription');
+    
+    // Clear previous content
+    routeDescriptionElement.innerHTML = '';
+
+    if (route) {
+        if (route.description && route.description.length > 0) {
+            // Create the main bulleted list
+            const ul = document.createElement('ul');
+            route.description.forEach(item => {
+                const li = document.createElement('li');
+
+                // Check if the item is a string (normal building) or an object (with nested items)
+                if (typeof item === 'string') {
+                    li.textContent = item;  // Regular building name
+                } else if (typeof item === 'object' && item.main) {
+                    li.textContent = item.main;  // Main building name
+
+                    // Create a sublist for nested items (e.g., rooms)
+                    if (item.sub && Array.isArray(item.sub)) {
+                        const subUl = document.createElement('ul');  // Sub list
+                        item.sub.forEach(subItem => {
+                            const subLi = document.createElement('li');
+                            subLi.textContent = subItem;  // Add each sub item (room)
+                            subUl.appendChild(subLi);
+                        });
+                        li.appendChild(subUl);  // Append the sublist to the main list item
+                    }
+                }
+                ul.appendChild(li);  // Append the main list item to the list
+            });
+
+            // Append the list to the route description element
+            routeDescriptionElement.appendChild(ul);
+        } else {
+            routeDescriptionElement.textContent = 'No buildings listed for this route.';
+        }
+    } else {
+        // If no valid route is selected
+        routeDescriptionElement.textContent = 'Please select a valid route.';
+    }
+});
+
     // Display image and information when a building is selected
     document.getElementById('buildingSelect').addEventListener('change', (event) => {
     const selectedBuilding = event.target.value;
@@ -284,3 +400,4 @@ document.getElementById('filterButton').addEventListener('click', () => {
     </script>
 </body>
 </html>
+
