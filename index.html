@@ -141,93 +141,41 @@
             var geojson = osmtogeojson(xmlDoc);
             L.geoJSON(geojson).addTo(map);
         });
-        // Add a marker for a specific location
-    //Smith Hall
-    var marker = L.marker([39.147316, -84.473885]).addTo(map);
+    // Add a marker for a specific location
 
-    //Conation Learning Commons
-    var marker = L.marker([39.147405, -84.474905]).addTo(map);
+    let markers = {}; // Store references to existing markers
+    let activeMarker = null;
 
-    //Mcdonald Memorial Library
-    var marker = L.marker([39.147796, -84.475486]).addTo(map);
-    
-    //Schott Hall
-    var marker = L.marker([39.147446, -84.475782]).addTo(map);
-    
-    //Edgecliff
-    var marker = L.marker([39.147791, -84.476828]).addTo(map);
-    
-    //Schmidt Hall
-    var marker = L.marker([39.148060, -84.476369]).addTo(map);
-    
-    //Hinkle Hall
-    var marker = L.marker([39.148304, -84.475929]).addTo(map);
-    
-    //Alter Hall
-    var marker = L.marker([39.148372, -84.475052]).addTo(map);
-    
-    //Logan Hall
-    var marker = L.marker([39.149000, -84.475261]).addTo(map);
-    
-    //Lindner Hall
-    var marker = L.marker([39.149256, -84.475015]).addTo(map);
+    // Add all your markers to the markers object
+    markers["Smith Hall"] = L.marker([39.147316, -84.473885]).addTo(map);
+    markers["Conaton Learning Commons (CLC)"] = L.marker([39.147405, -84.474905]).addTo(map);
+    markers["McDonald Memorial Library"] = L.marker([39.147796, -84.475486]).addTo(map);
+    markers["Walter Schott Hall"] = L.marker([39.147446, -84.475782]).addTo(map);
+    markers["Edgecliff Hall"] = L.marker([39.147791, -84.476828]).addTo(map);
+    markers["Schmidt Hall"] = L.marker([39.148060, -84.476369]).addTo(map);
+    markers["Hinkle Hall"] = L.marker([39.148304, -84.475929]).addTo(map);
+    markers["Alter Hall"] = L.marker([39.148372, -84.475052]).addTo(map);
+    markers["Logan Hall"] = L.marker([39.149000, -84.475261]).addTo(map);
+    markers["Lindner Family Physics Building"] = L.marker([39.149256, -84.475015]).addTo(map);
+    markers["Gallagher Student Center"] = L.marker([39.149672, -84.474489]).addTo(map);
+    markers["Albers Hall"] = L.marker([39.148683, -84.475669]).addTo(map);
+    markers["Hailstones Hall"] = L.marker([39.148437, -84.474435]).addTo(map);
+    markers["Our Lady of Peace Chapel"] = L.marker([39.147450, -84.476763]).addTo(map);
+    markers["Bellarmine Chapel"] = L.marker([39.148979, -84.474549]).addTo(map);
+    markers["Brockman Hall"] = L.marker([39.150244, -84.474216]).addTo(map);
+    markers["Buenger Hall"] = L.marker([39.150892, -84.473298]).addTo(map);
+    markers["Kuhlman Hall"] = L.marker([39.149833, -84.473175]).addTo(map);
+    markers["Husman Hall"] = L.marker([39.149306, -84.473110]).addTo(map);
+    markers["Justice Hall"] = L.marker([39.148316, -84.472874]).addTo(map);
+    markers["Cintas Center"] = L.marker([39.149862, -84.472043]).addTo(map);
+    markers["Cohen Center"] = L.marker([39.151132, -84.469523]).addTo(map);
+    markers["Flynn Hall"] = L.marker([39.148947, -84.471485]).addTo(map);
+    markers["Health United Building (HUB)"] = L.marker([39.148353, -84.469753]).addTo(map);
+    markers["Hoff Dining Commons"] = L.marker([39.148265, -84.473389]).addTo(map);
+    markers["Elet Hall"] = L.marker([39.149175, -84.479303]).addTo(map);
+    markers["Joseph Hall"] = L.marker([39.148918, -84.479593]).addTo(map);
 
-    //Gallagher
-    var marker = L.marker([39.149672, -84.474489]).addTo(map);
-
-    //Albers
-    var marker = L.marker([39.148683, -84.475669]).addTo(map);
-
-    //Hailstone
-    var marker = L.marker([39.148437, -84.474435]).addTo(map);
-
-    //Our Lady of peace Chapel
-    var marker = L.marker([39.147450, -84.476763]).addTo(map);
-
-    //Bellarmine Chapel
-    var marker = L.marker([39.148979, -84.474549]).addTo(map);
-
-    //Brockman Hall
-    var marker = L.marker([39.150244, -84.474216]).addTo(map);
-
-    //Buenger Hall
-    var marker = L.marker([39.150892, -84.473298]).addTo(map);
-
-    //Kuhlman Hall
-    var marker = L.marker([39.149833, -84.473175]).addTo(map);
-
-    //Husman Hall
-    var marker = L.marker([39.149306, -84.473110]).addTo(map);
-
-    //Justice Hall
-    var marker = L.marker([39.148316, -84.472874]).addTo(map);
-    
-    //Cintas
-    var marker = L.marker([39.149862, -84.472043]).addTo(map);
-
-    //Cohen
-    var marker = L.marker([39.151132, -84.469523]).addTo(map);
-
-    //Flynn Hall
-    var marker = L.marker([39.148947, -84.471485]).addTo(map);
-
-    //Health United Building HUB
-    var marker = L.marker([39.148353, -84.469753]).addTo(map);
-
-    //Hoff Dining Commons
-    var marker = L.marker([39.148265, -84.473389]).addTo(map);
-
-    //Elet Hall
-    var marker = L.marker([39.149175, -84.479303]).addTo(map);
-
-    //Joseph Hall
-    var marker = L.marker([39.148918, -84.479593]).addTo(map);
-
-
-
-
-        let buildingsData = []; // For building data
-        let buildingDescriptions = {}; // For building descriptions
+let buildingsData = []; // For building data
 
 // Fetch the BuildingsList.json file
 fetch('BuildingsList.json')
@@ -278,6 +226,91 @@ document.getElementById('filterButton').addEventListener('click', () => {
         }
     });
 });
+
+
+
+    // Add click event listeners to markers
+    Object.keys(markers).forEach(buildingName => {
+        markers[buildingName].on('click', function() {
+            handleMarkerClick(buildingName);
+        });
+    });
+
+
+
+// Handle building selection from the dropdown
+document.getElementById('buildingSelect').addEventListener('change', (event) => {
+    const buildingName = event.target.value;
+    handleBuildingClick(buildingName);
+});
+
+// Function to handle the building click event from dropdown 
+function handleBuildingClick(buildingName) {
+    console.log('Building clicked:', buildingName);
+
+    // Default zoom level for all buildings
+    const zoomLevel = 18;  // Adjust this value for how far you want to zoom in
+
+    // If no specific building is selected (i.e., the default option), show all markers and reset zoom
+    if (buildingName === "") {
+        // Add all markers back to the map
+        Object.keys(markers).forEach(name => {
+            map.addLayer(markers[name]);
+        });
+
+        // Reset the map to the default view and zoom level
+        map.setView([39.149, -84.473], 15); // Change this to your desired default location and zoom level
+        return;
+    }
+
+    // Otherwise, hide all markers
+    Object.keys(markers).forEach(name => {
+        map.removeLayer(markers[name]);
+    });
+
+    // Check if the marker exists for the clicked building
+    if (markers[buildingName]) {
+        // Add the selected marker back to the map
+        markers[buildingName].addTo(map);
+
+        // Pan to the marker's location and zoom in further
+        map.setView(markers[buildingName].getLatLng(), zoomLevel);
+
+    } else {
+        console.error('No marker found for:', buildingName);
+    }
+}
+
+//This handles when a user clicks on building marker on map
+function handleMarkerClick(buildingName) {
+        const building = buildingsData.find(b => b.name === buildingName);
+
+        if (building) {
+            // Update image
+            const imageElement = document.getElementById('buildingImage');
+            imageElement.src = building.image;
+            imageElement.style.display = 'block';
+
+            // Update description
+            const descriptionElement = document.getElementById('buildingDescription');
+            descriptionElement.textContent = building.description || 'No description available.';
+
+            // Update audio
+            const audioElement = document.getElementById('buildingAudio');
+            const audioSource = document.getElementById('audioSource');
+            const noAudioMessage = document.getElementById('noAudioMessage');
+
+            if (building.audio) {
+                audioSource.src = building.audio;
+                audioElement.style.display = 'block';
+                noAudioMessage.style.display = 'none';
+                audioElement.load(); // Load the new audio file
+            } else {
+                audioElement.style.display = 'none';
+                noAudioMessage.style.display = 'block';
+            }
+        }
+    }
 
 let routesData = []; // For routes data
 
@@ -350,6 +383,7 @@ fetch('XavierWalkingTourRoutes.json')
         // If no valid route is selected
         routeDescriptionElement.textContent = 'Please select a valid route.';
     }
+
 });
 
     // Display image and information when a building is selected
