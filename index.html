@@ -1,180 +1,266 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map Integration</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/osmtogeojson"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
     <style>
-        html,
         body {
-            height: 100%;
+            display: flex; /* Use Flexbox for layout */
+            flex-wrap: nowrap;
             margin: 0;
-        }
-
-        #map {
-            height: 100%;
-            /* Full height for the map */
-        }
-
-        /* Map container with padding/margin */
-        .map-box {
-            margin: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            background-color: #fff;
-            border-radius: 8px;
-            height: 90%;
-        }
-
-        #sidebar {
-            height: 100%;
-            /* Full height for the sidebar */
-            background-color: #f8f9fa;
             padding: 20px;
-            border-left: 1px solid #ddd;
-            overflow-y: auto;
-            /* Allows scrolling for overflow */
         }
-
-        .content-wrapper {
-            height: calc(100vh - 56px);
-            /* Full height minus the navbar */
+        #map {
+            width: 60%; /* Map takes 60% of the width */
+            height: 400px;
+            margin-right: 20px; /* Space between map and list */
         }
+        #sidebar {
+            flex: 0 0 35%; /* Sidebar takes 35% of the width */
+            padding: 15px;
+            border: 1px solid #0C2340; /* Border around the sidebar */
+            border-radius: 5px; /* Rounded corners */
+            background-color: #D7D3CC(0, 0%, 98%); /* Light background color */
+            margin-right: 275px;
+        }
+        #routesContainer {
+            flex: 1;
+            max-width: 93%;
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #0C2340;;
+            border-radius: 5px;
+            background-color: #D7D3CC(0, 0%, 98%);
+            overflow-wrap: break-word; /* Matches the width of the map */
+        }
+        #routeDescription {
+            max-width: 100%;
+            overflow-wrap: break-word;
+            word-wrap: break-word; /* Ensure long text wraps within the container */
+        }
+        #routesList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #routesList li {
+            padding: 8px;
+            border-bottom: 1px solid #ddd;
+        }
+        ul {
+            padding-left: 20px; /* Ensure bullet points are properly indented */
+        }
+        #routesList li:last-child {
+            border-bottom: none;
+        }
+        #buildingList {
+            list-style-type: none;
+            padding: 0;
+        }
+        #buildingList li {
+            padding: 8px; /* Padding for list items */
+            border-bottom: 1px solid #ddd; /* Separator between list items */
+        }
+        #buildingList li:last-child {
+            border-bottom: none; /* Remove separator for the last item */
     </style>
 </head>
-
 <body>
+    <div>  
+        <h1>Xavier Campus Map</h1>
+        <div id="map" style="width: 600px; height: 400px;"></div>
 
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <div class="container-fluid">
-            <h1 class="navbar-brand">Xavier Campus Map</h1>
-        </div>
-    </nav>
+        <!-- Route dropdown and description area -->
+        <div id="routesContainer">
+        <h2>Routes to Take</h2>
+        <select id="routeSelect">
+            </select>
+            <button id="selectButton">Select</button>
 
-    <!-- Bootstrap Grid for the map and sidebar -->
-    <div class="container-fluid content-wrapper">
-        <div class="row h-100"> <!-- 100% height row -->
-
-            <!-- Map column: 9/12 of the width -->
-            <div class="col-md-9 p-0">
-                <div class="map-box">
-                    <div id="map"></div>
-                </div>
-            </div>
-
-            <!-- Sidebar column: 3/12 of the width -->
-            <div class="col-md-3" id="sidebar">
-                <h2>Places to Visit</h2>
-                <select id="collegeSelect" class="form-select">
-                    <option value="">All Colleges</option>
-                    <option value="arts_and_sciences">College of Arts and Sciences</option>
-                    <option value="nursing">College of Nursing</option>
-                    <option value="professional_sciences">College of Professional Sciences</option>
-                    <option value="business">Williams College of Business</option>
-                </select>
-                <button id="filterButton" class="btn btn-primary mt-2">Filter</button>
-
-                <h3 class="mt-4">Buildings</h3>
-                <select id="buildingSelect" class="form-select">
-                    <option value="">Select a Building...</option>
-                </select>
-
-                <div id="imageContainer" class="mt-3">
-                    <h4>Building Image</h4>
-                    <img id="buildingImage" src="" alt="Building Image"
-                        style="display: none; max-width: 100%; height: auto;" />
-                </div>
-
-                <div id="buildingInfo" class="mt-3">
-                    <h4>Building Information</h4>
-                    <p id="buildingDescription"></p>
-                </div>
-            </div>
-
+        <!-- Route details -->
+        <p id="routeDescription"></p>
         </div>
     </div>
 
+    
+    <div id="sidebar">
+        <h2>Places to Visit 
+            <select id="collegeSelect">
+                <option value="">All Colleges</option> <!-- Default option -->
+                <option value="arts_and_sciences">College of Arts and Sciences</option>
+                <option value="nursing">College of Nursing</option>
+                <option value="professional_sciences">College of Professional Sciences</option>
+                <option value="business">Williams College of Business</option>
+            </select>
+            <button id="filterButton">Filter</button>
+        </h2>
+        <select id="buildingSelect">
+            <option value="">Select a Building...</option> <!-- Default option -->
+        </select>
+
+    </select>
+
+    <!-- Area for displaying the building image -->
+    <div id="imageContainer">
+    <h3>Building Image</h3>
+    <img id="buildingImage" src="" alt="Building Image" style="display: none; max-width: 75%; height: auto;" />
+
+    <!-- Area for building information -->
+    <div id="buildingInfo" style="margin-top: 10px;">
+        <h3>Building Information</h3>
+        <p id="buildingDescription"></p>
+
+    <!-- Audio section -->
+    <h3>Building Audio</h3>
+    <audio id="buildingAudio" controls style="display: none;">
+        <source id="audioSource" src="" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <p id="noAudioMessage" style="display: none;">No audio available.</p>
+
+    </div>
 
     <script>
-        function toggleDropdown() {
-            document.getElementById("dropdown-content").classList.toggle("show");
-        }
+    // Initialize the map and set its view to the chosen geographical coordinates and zoom level
+    var map = L.map('map').setView([39.1487, -84.4780], 13);
 
-        // Close the dropdown if the user clicks outside of it
-        window.onclick = function (event) {
-            if (!event.target.matches('button')) {
-                var dropdowns = document.getElementsByClassName("dropdown-content");
-                for (var i = 0; i < dropdowns.length; i++) {
-                    var openDropdown = dropdowns[i];
-                    if (openDropdown.classList.contains('show')) {
-                        openDropdown.classList.remove('show');
-                    }
-                }
-            }
-        }
-        // Initialize the map and set its view to the chosen geographical coordinates and zoom level
-        var map = L.map('map').setView([39.14889, -84.4744], 20);
+    // Add a tile layer to the map (you can use OpenStreetMap tiles)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-        // Add a tile layer to the map (you can use OpenStreetMap tiles)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    // Load the .osm file (you may need to convert it to GeoJSON format first)
+    fetch('path/to/your/map.osm')
+        .then(response => response.text())
+        .then(data => {
+            var parser = new DOMParser();
+            var xmlDoc = parser.parseFromString(data, "text/xml");
+            var geojson = osmtogeojson(xmlDoc);
+            L.geoJSON(geojson).addTo(map);
+        });
+        // Add a marker for a specific location
+    //Smith Hall
+    var marker = L.marker([39.147316, -84.473885]).addTo(map);
 
-        // Load the .osm file (you may need to convert it to GeoJSON format first)
-        fetch('Campus-Map.osm')
-            .then(response => response.text())
-            .then(data => {
-                var parser = new DOMParser();
-                var xmlDoc = parser.parseFromString(data, "text/xml");
-                var geojson = osmtogeojson(xmlDoc);
-                L.geoJSON(geojson).addTo(map);
-            });
+    //Conation Learning Commons
+    var marker = L.marker([39.147405, -84.474905]).addTo(map);
+
+    //Mcdonald Memorial Library
+    var marker = L.marker([39.147796, -84.475486]).addTo(map);
+    
+    //Schott Hall
+    var marker = L.marker([39.147446, -84.475782]).addTo(map);
+    
+    //Edgecliff
+    var marker = L.marker([39.147791, -84.476828]).addTo(map);
+    
+    //Schmidt Hall
+    var marker = L.marker([39.148060, -84.476369]).addTo(map);
+    
+    //Hinkle Hall
+    var marker = L.marker([39.148304, -84.475929]).addTo(map);
+    
+    //Alter Hall
+    var marker = L.marker([39.148372, -84.475052]).addTo(map);
+    
+    //Logan Hall
+    var marker = L.marker([39.149000, -84.475261]).addTo(map);
+    
+    //Lindner Hall
+    var marker = L.marker([39.149256, -84.475015]).addTo(map);
+
+    //Gallagher
+    var marker = L.marker([39.149672, -84.474489]).addTo(map);
+
+    //Albers
+    var marker = L.marker([39.148683, -84.475669]).addTo(map);
+
+    //Hailstone
+    var marker = L.marker([39.148437, -84.474435]).addTo(map);
+
+    //Our Lady of peace Chapel
+    var marker = L.marker([39.147450, -84.476763]).addTo(map);
+
+    //Bellarmine Chapel
+    var marker = L.marker([39.148979, -84.474549]).addTo(map);
+
+    //Brockman Hall
+    var marker = L.marker([39.150244, -84.474216]).addTo(map);
+
+    //Buenger Hall
+    var marker = L.marker([39.150892, -84.473298]).addTo(map);
+
+    //Kuhlman Hall
+    var marker = L.marker([39.149833, -84.473175]).addTo(map);
+
+    //Husman Hall
+    var marker = L.marker([39.149306, -84.473110]).addTo(map);
+
+    //Justice Hall
+    var marker = L.marker([39.148316, -84.472874]).addTo(map);
+    
+    //Cintas
+    var marker = L.marker([39.149862, -84.472043]).addTo(map);
+
+    //Cohen
+    var marker = L.marker([39.151132, -84.469523]).addTo(map);
+
+    //Flynn Hall
+    var marker = L.marker([39.148947, -84.471485]).addTo(map);
+
+    //Health United Building HUB
+    var marker = L.marker([39.148353, -84.469753]).addTo(map);
+
+    //Hoff Dining Commons
+    var marker = L.marker([39.148265, -84.473389]).addTo(map);
+
+    //Elet Hall
+    var marker = L.marker([39.149175, -84.479303]).addTo(map);
+
+    //Joseph Hall
+    var marker = L.marker([39.148918, -84.479593]).addTo(map);
+
+
+
 
         let buildingsData = []; // For building data
         let buildingDescriptions = {}; // For building descriptions
 
-        // Fetch the BuildingsList.json file
-        fetch('BuildingsList.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data); // Check what data is being fetched
-                buildingsData = data.Buildings;
+// Fetch the BuildingsList.json file
+fetch('BuildingsList.json')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // Check what data is being fetched
+        buildingsData = data.Buildings;
 
-                // Sort buildings alphabetically by name
-                buildingsData.sort((a, b) => a.name.localeCompare(b.name));
+        // Sort buildings alphabetically by name
+        buildingsData.sort((a, b) => a.name.localeCompare(b.name));
 
-                const dropdown = document.getElementById('buildingSelect');
-                buildingsData.forEach(building => {
-                    const option = document.createElement('option');
-                    option.value = building.name;
-                    option.textContent = building.name;
-                    dropdown.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error fetching the JSON file:', error));
+        const dropdown = document.getElementById('buildingSelect');
+        buildingsData.forEach(building => {
+            const option = document.createElement('option');
+            option.value = building.name;
+            option.textContent = building.name;
+            dropdown.appendChild(option);
+        });
+    })
+    .catch(error => console.error('Error fetching the JSON file:', error));
 
-        // Filter buildings by college
-        document.getElementById('filterButton').addEventListener('click', () => {
-            const selectedCollege = document.getElementById('collegeSelect').value;
-            const dropdown = document.getElementById('buildingSelect');
+// Filter buildings by college
+document.getElementById('filterButton').addEventListener('click', () => {
+    const selectedCollege = document.getElementById('collegeSelect').value;
+    const dropdown = document.getElementById('buildingSelect');
 
-            // Clear existing options
-            dropdown.innerHTML = '<option value="">Select a Building...</option>';
+    // Clear existing options
+    dropdown.innerHTML = '<option value="">Select a Building...</option>';
 
     buildingsData.forEach(building => {
         if (Array.isArray(building.college)) {
@@ -266,30 +352,51 @@ fetch('XavierWalkingTourRoutes.json')
     }
 });
 
-        // Display image and information when a building is selected
-        document.getElementById('buildingSelect').addEventListener('change', (event) => {
-            const selectedBuilding = event.target.value;
-            const building = buildingsData.find(b => b.name === selectedBuilding);
+    // Display image and information when a building is selected
+    document.getElementById('buildingSelect').addEventListener('change', (event) => {
+    const selectedBuilding = event.target.value;
+    const building = buildingsData.find(b => b.name === selectedBuilding);
+    
+    const imageElement = document.getElementById('buildingImage');
+    const descriptionElement = document.getElementById('buildingDescription');
+    const audioElement = document.getElementById('buildingAudio');
+    const audioSource = document.getElementById('audioSource');
+    const noAudioMessage = document.getElementById('noAudioMessage'); 
 
-            const imageElement = document.getElementById('buildingImage');
-            const descriptionElement = document.getElementById('buildingDescription');
+    
+    if (building) {
+        imageElement.src = building.image; // Set the image source
+        imageElement.style.display = 'block'; // Show the image
+        
+        descriptionElement.textContent = building.description || 'No description available.'; // Set the description
 
-            if (building) {
-                imageElement.src = building.image; // Set the image source
-                imageElement.style.display = 'block'; // Show the image
+        // Handle audio
+        if (building.audio && building.audio.trim !== '') {
+            // If audio is available
+            audioSource.src = building.audio;
+            audioElement.style.display = 'block'; // Show the audio player
+            noAudioMessage.style.display = 'none'; // Hide the "No audio available" message
+            audioElement.load(); // Load the new audio file
+        } else {
+            // If no audio is available
+            audioElement.style.display = 'none'; // Hide the audio player
+            noAudioMessage.style.display = 'block'; // Show the "No audio available" message
+        }
+    } else {
+    // Reset the fields if nothing is selected
+        imageElement.src = '';
+        imageElement.style.display = 'none'; // Hide the image if no selection
+        descriptionElement.textContent = ''; // Clear the description
+        audioElement.style.display = 'none'; // Hide the audio if no selection
+        noAudioMessage.style.display = 'none'; // Hide the "No audio available" message
+        }
+    
 
-                descriptionElement.textContent = building.description || 'No description available.'; // Set the description
-            } else {
-                imageElement.src = '';
-                imageElement.style.display = 'none'; // Hide the image if no selection
-                descriptionElement.textContent = ''; // Clear the description
-            }
-        });
+
+});
 
 
 
     </script>
 </body>
-
 </html>
-
