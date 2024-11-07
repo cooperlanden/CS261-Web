@@ -8,6 +8,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://unpkg.com/osmtogeojson"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
@@ -79,55 +82,50 @@
             max-width: 93%;
             margin-top: 20px;
             padding: 10px;
-            border: 1px solid #0C2340;
-            ;
+            border: 1px solid #0C2340;;
             border-radius: 5px;
             background-color: #D7D3CC(0, 0%, 98%);
-            overflow-wrap: break-word;
-            /* Matches the width of the map */
+            overflow-wrap: break-word; /* Matches the width of the map */
         }
-
         #routeDescription {
             max-width: 100%;
             overflow-wrap: break-word;
-            word-wrap: break-word;
-            /* Ensure long text wraps within the container */
+            word-wrap: break-word; /* Ensure long text wraps within the container */
         }
-
         #routesList {
             list-style-type: none;
             padding: 0;
         }
-
         #routesList li {
             padding: 8px;
             border-bottom: 1px solid #ddd;
         }
-
         ul {
-            padding-left: 20px;
-            /* Ensure bullet points are properly indented */
+            padding-left: 20px; /* Ensure bullet points are properly indented */
         }
-
         #routesList li:last-child {
             border-bottom: none;
         }
-
         #buildingList {
             list-style-type: none;
             padding: 0;
         }
-
         #buildingList li {
-            padding: 8px;
-            /* Padding for list items */
-            border-bottom: 1px solid #ddd;
-            /* Separator between list items */
+            padding: 8px; /* Padding for list items */
+            border-bottom: 1px solid #ddd; /* Separator between list items */
+        }
+        #buildingList li:last-child {
+            border-bottom: none; /* Remove separator for the last item */
+        }
+            .clickable {
+            cursor: pointer;
+            color: #007BFF; /* Link color */
+            text-decoration: underline;
         }
 
-        #buildingList li:last-child {
-            border-bottom: none;
-            /* Remove separator for the last item */
+        .clickable:hover {
+            color: #0056b3; /* Darker blue on hover */
+            text-decoration: none;
         }
         .navbar {
             background-color: #0C2340;
@@ -176,363 +174,467 @@
             <div class="col-lg-8 p-1">
                 <div id="map"></div>
 
-                <h2>Routes to Take</h2>
-                <select id="routeSelect" class="form-select">
-                </select>
-                <button id="selectButton" class="btn btn-primary mt-2">Select</button>
-                <p id="routeDescription"></p>
-            </div>
+
+        <h2>Routes to Take</h2>
+        <select id="routeSelect">
+        </select>
+        <button id="selectButton">Select</button>
+        <p id="routeDescription"></p>
+        </div>
+
+
     
-            <!-- Sidebar for "Places to Visit" (4 parts of the row) -->
-            <div class="col-lg-4 p-1">
-                <h2>Places to Visit</h2>
-                <select id="collegeSelect">
-                    <option value="">All Colleges</option> <!-- Default option -->
-                    <option value="arts_and_sciences">College of Arts and Sciences</option>
-                    <option value="nursing">College of Nursing</option>
-                    <option value="professional_sciences">College of Professional Sciences</option>
-                    <option value="business">Williams College of Business</option>
-                </select>
-                <button id="filterButton">Filter</button>
+<!-- Sidebar for "Places to Visit" (4 parts of the row) -->
+<div class="col-lg-4 p-1">
+    <h2>Places to Visit</h2>
+    <select id="collegeSelect">
+        <option value="">All Colleges</option> <!-- Default option -->
+        <option value="arts_and_sciences">College of Arts and Sciences</option>
+        <option value="nursing">College of Nursing</option>
+        <option value="professional_sciences">College of Professional Sciences</option>
+        <option value="business">Williams College of Business</option>
+    </select>
+    <button id="filterButton">Filter</button>
+
+    <select id="buildingSelect">
+        <option value="">Select a Building...</option> <!-- Default option -->
+    </select>
+
+    <!-- Area for displaying the building image -->
+    <div id="imageContainer">
+        <h3>Building Image</h3>
+        <img id="buildingImage" src="" alt="Building Image"
+            style="display: none; max-width: 75%; height: auto;" />
     
-                <select id="buildingSelect">
-                    <option value="">Select a Building...</option> <!-- Default option -->
-                </select>
+        <!-- Area for building information -->
+        <div id="buildingInfo" style="margin-top: 10px;">
+            <h3>Building Information</h3>
+            <p id="buildingDescription"></p>
     
-                <!-- Area for displaying the building image -->
-                <div id="imageContainer">
-                    <h3>Building Image</h3>
-                    <img id="buildingImage" src="" alt="Building Image"
-                         style="display: none; max-width: 75%; height: auto;" />
-    
-                    <!-- Area for building information -->
-                    <div id="buildingInfo" style="margin-top: 10px;">
-                        <h3>Building Information</h3>
-                        <p id="buildingDescription"></p>
-    
-                        <!-- Audio section -->
-                        <h3>Building Audio</h3>
-                        <audio id="buildingAudio" controls style="display: none;">
-                            <source id="audioSource" src="" type="audio/mpeg">
-                            Your browser does not support the audio element.
-                        </audio>
-                        <p id="noAudioMessage" style="display: none;">No audio available.</p>
-                    </div>
-                </div>
-            </div>
+            <!-- Audio section -->
+            <h3>Building Audio</h3>
+            <audio id="buildingAudio" controls style="display: none;">
+                <source id="audioSource" src="" type="audio/mpeg">
+                Your browser does not support the audio element.
+            </audio>
+            <p id="noAudioMessage" style="display: none;">No audio available.</p>
         </div>
     </div>
-    
+</div>
+</div>
+</div>
 
     <script>
-        // Initialize the map and set its view to the chosen geographical coordinates and zoom level
-        var map = L.map('map').setView([39.1487, -84.4780], 13);
+    // Initialize the map and set its view to the chosen geographical coordinates and zoom level
+    var map = L.map('map').setView([39.1487, -84.4780], 13);
 
-        // Add a tile layer to the map (you can use OpenStreetMap tiles)
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        }).addTo(map);
+    // Add a tile layer to the map (you can use OpenStreetMap tiles)
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
 
-        // Load the .osm file (you may need to convert it to GeoJSON format first)
-        fetch('path/to/your/map.osm')
-            .then(response => response.text())
-            .then(data => {
-                var parser = new DOMParser();
-                var xmlDoc = parser.parseFromString(data, "text/xml");
-                var geojson = osmtogeojson(xmlDoc);
-                L.geoJSON(geojson).addTo(map);
-            });
-        // Add a marker for a specific location
-
-        let markers = {}; // Store references to existing markers
-        let activeMarker = null;
-
-        // Add all your markers to the markers object
-        markers["Smith Hall"] = L.marker([39.147316, -84.473885]).addTo(map);
-        markers["Conaton Learning Commons (CLC)"] = L.marker([39.147405, -84.474905]).addTo(map);
-        markers["McDonald Memorial Library"] = L.marker([39.147796, -84.475486]).addTo(map);
-        markers["Walter Schott Hall"] = L.marker([39.147446, -84.475782]).addTo(map);
-        markers["Edgecliff Hall"] = L.marker([39.147791, -84.476828]).addTo(map);
-        markers["Schmidt Hall"] = L.marker([39.148060, -84.476369]).addTo(map);
-        markers["Hinkle Hall"] = L.marker([39.148304, -84.475929]).addTo(map);
-        markers["Alter Hall"] = L.marker([39.148372, -84.475052]).addTo(map);
-        markers["Logan Hall"] = L.marker([39.149000, -84.475261]).addTo(map);
-        markers["Lindner Family Physics Building"] = L.marker([39.149256, -84.475015]).addTo(map);
-        markers["Gallagher Student Center"] = L.marker([39.149672, -84.474489]).addTo(map);
-        markers["Albers Hall"] = L.marker([39.148683, -84.475669]).addTo(map);
-        markers["Hailstones Hall"] = L.marker([39.148437, -84.474435]).addTo(map);
-        markers["Our Lady of Peace Chapel"] = L.marker([39.147450, -84.476763]).addTo(map);
-        markers["Bellarmine Chapel"] = L.marker([39.148979, -84.474549]).addTo(map);
-        markers["Brockman Hall"] = L.marker([39.150244, -84.474216]).addTo(map);
-        markers["Buenger Hall"] = L.marker([39.150892, -84.473298]).addTo(map);
-        markers["Kuhlman Hall"] = L.marker([39.149833, -84.473175]).addTo(map);
-        markers["Husman Hall"] = L.marker([39.149306, -84.473110]).addTo(map);
-        markers["Justice Hall"] = L.marker([39.148316, -84.472874]).addTo(map);
-        markers["Cintas Center"] = L.marker([39.149862, -84.472043]).addTo(map);
-        markers["Cohen Center"] = L.marker([39.151132, -84.469523]).addTo(map);
-        markers["Flynn Hall"] = L.marker([39.148947, -84.471485]).addTo(map);
-        markers["Health United Building (HUB)"] = L.marker([39.148353, -84.469753]).addTo(map);
-        markers["Hoff Dining Commons"] = L.marker([39.148265, -84.473389]).addTo(map);
-        markers["Elet Hall"] = L.marker([39.149175, -84.479303]).addTo(map);
-        markers["Joseph Hall"] = L.marker([39.148918, -84.479593]).addTo(map);
-
-        let buildingsData = []; // For building data
-
-        // Fetch the BuildingsList.json file
-        fetch('BuildingsList.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data); // Check what data is being fetched
-                buildingsData = data.Buildings;
-
-                // Sort buildings alphabetically by name
-                buildingsData.sort((a, b) => a.name.localeCompare(b.name));
-
-                const dropdown = document.getElementById('buildingSelect');
-                buildingsData.forEach(building => {
-                    const option = document.createElement('option');
-                    option.value = building.name;
-                    option.textContent = building.name;
-                    dropdown.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error fetching the JSON file:', error));
-
-        // Filter buildings by college
-        document.getElementById('filterButton').addEventListener('click', () => {
-            const selectedCollege = document.getElementById('collegeSelect').value;
-            const dropdown = document.getElementById('buildingSelect');
-
-            // Clear existing options
-            dropdown.innerHTML = '<option value="">Select a Building...</option>';
-
-            buildingsData.forEach(building => {
-                if (Array.isArray(building.college)) {
-                    if (building.college.includes(selectedCollege)) {
-                        const option = document.createElement('option');
-                        option.value = building.name;
-                        option.textContent = building.name;
-                        dropdown.appendChild(option);
-                    }
-                } else if (building.college === selectedCollege) {
-                    const option = document.createElement('option');
-                    option.value = building.name;
-                    option.textContent = building.name;
-                    dropdown.appendChild(option);
-                }
-            });
+    // Load the .osm file (you may need to convert it to GeoJSON format first)
+    fetch('path/to/your/map.osm')
+        .then(response => response.text())
+        .then(data => {
+            var parser = new DOMParser();
+            var xmlDoc = parser.parseFromString(data, "text/xml");
+            var geojson = osmtogeojson(xmlDoc);
+            L.geoJSON(geojson).addTo(map);
         });
+        
+    // Add a marker for a specific location
+
+    let markers = {}; // Store references to existing markers
+    let activeMarker = null;
+
+    markers["Smith Hall"] = L.marker([39.147316, -84.473885]).addTo(map);
+    markers["Conaton Learning Commons (CLC)"] = L.marker([39.147405, -84.474905]).addTo(map);
+    markers["McDonald Memorial Library"] = L.marker([39.147796, -84.475486]).addTo(map);
+    markers["Walter Schott Hall"] = L.marker([39.147446, -84.475782]).addTo(map);
+    markers["Edgecliff Hall"] = L.marker([39.147791, -84.476828]).addTo(map);
+    markers["Schmidt Hall"] = L.marker([39.148060, -84.476369]).addTo(map);
+    markers["Hinkle Hall"] = L.marker([39.148304, -84.475929]).addTo(map);
+    markers["Alter Hall"] = L.marker([39.148372, -84.475052]).addTo(map);
+    markers["Logan Hall"] = L.marker([39.149000, -84.475261]).addTo(map);
+    markers["Lindner Family Physics Building"] = L.marker([39.149256, -84.475015]).addTo(map);
+    markers["Gallagher Student Center"] = L.marker([39.149672, -84.474489]).addTo(map);
+    markers["Albers Hall"] = L.marker([39.148683, -84.475669]).addTo(map);
+    markers["Hailstones Hall"] = L.marker([39.148437, -84.474435]).addTo(map);
+    markers["Our Lady of Peace Chapel"] = L.marker([39.147450, -84.476763]).addTo(map);
+    markers["Bellarmine Chapel"] = L.marker([39.148979, -84.474549]).addTo(map);
+    markers["Brockman Hall"] = L.marker([39.150244, -84.474216]).addTo(map);
+    markers["Buenger Hall"] = L.marker([39.150892, -84.473298]).addTo(map);
+    markers["Kuhlman Hall"] = L.marker([39.149833, -84.473175]).addTo(map);
+    markers["Husman Hall"] = L.marker([39.149306, -84.473110]).addTo(map);
+    markers["Justice Hall"] = L.marker([39.148316, -84.472874]).addTo(map);
+    markers["Cintas Center"] = L.marker([39.149862, -84.472043]).addTo(map);
+    markers["Cohen Center"] = L.marker([39.151132, -84.469523]).addTo(map);
+    markers["Flynn Hall"] = L.marker([39.148947, -84.471485]).addTo(map);
+    markers["Health United Building (HUB)"] = L.marker([39.148353, -84.469753]).addTo(map);
+    markers["Hoff Dining Commons"] = L.marker([39.148265, -84.473389]).addTo(map);
+    markers["Elet Hall"] = L.marker([39.149175, -84.479303]).addTo(map);
+    markers["Joseph Hall"] = L.marker([39.148918, -84.479593]).addTo(map);
 
 
+let buildingsData = []; // For building data
 
-        // Add click event listeners to markers
-        Object.keys(markers).forEach(buildingName => {
-            markers[buildingName].on('click', function () {
-                handleMarkerClick(buildingName);
-            });
-        });
-
-
-
-        // Handle building selection from the dropdown
-        document.getElementById('buildingSelect').addEventListener('change', (event) => {
-            const buildingName = event.target.value;
-            handleBuildingClick(buildingName);
-        });
-
-        // Function to handle the building click event from dropdown 
-        function handleBuildingClick(buildingName) {
-            console.log('Building clicked:', buildingName);
-
-            // Default zoom level for all buildings
-            const zoomLevel = 18;  // Adjust this value for how far you want to zoom in
-
-            // If no specific building is selected (i.e., the default option), show all markers and reset zoom
-            if (buildingName === "") {
-                // Add all markers back to the map
-                Object.keys(markers).forEach(name => {
-                    map.addLayer(markers[name]);
-                });
-
-                // Reset the map to the default view and zoom level
-                map.setView([39.149, -84.473], 15); // Change this to your desired default location and zoom level
-                return;
-            }
-
-            // Otherwise, hide all markers
-            Object.keys(markers).forEach(name => {
-                map.removeLayer(markers[name]);
-            });
-
-            // Check if the marker exists for the clicked building
-            if (markers[buildingName]) {
-                // Add the selected marker back to the map
-                markers[buildingName].addTo(map);
-
-                // Pan to the marker's location and zoom in further
-                map.setView(markers[buildingName].getLatLng(), zoomLevel);
-
-            } else {
-                console.error('No marker found for:', buildingName);
-            }
+// Fetch the BuildingsList.json file
+fetch('BuildingsList.json')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
         }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // Check what data is being fetched
+        buildingsData = data.Buildings;
 
-        //This handles when a user clicks on building marker on map
-        function handleMarkerClick(buildingName) {
-            const building = buildingsData.find(b => b.name === buildingName);
+        // Sort buildings alphabetically by name
+        buildingsData.sort((a, b) => a.name.localeCompare(b.name));
 
-            if (building) {
-                // Update image
-                const imageElement = document.getElementById('buildingImage');
-                imageElement.src = building.image;
-                imageElement.style.display = 'block';
+        const dropdown = document.getElementById('buildingSelect');
+        buildingsData.forEach(building => {
+            const option = document.createElement('option');
+            option.value = building.name;
+            option.textContent = building.name;
+            dropdown.appendChild(option);
+        });
+    })
+    .catch(error => console.error('Error fetching the JSON file:', error));
 
-                // Update description
-                const descriptionElement = document.getElementById('buildingDescription');
-                descriptionElement.textContent = building.description || 'No description available.';
+// Filter buildings by college
+document.getElementById('filterButton').addEventListener('click', () => {
+    const selectedCollege = document.getElementById('collegeSelect').value;
+    const dropdown = document.getElementById('buildingSelect');
 
-                // Update audio
-                const audioElement = document.getElementById('buildingAudio');
-                const audioSource = document.getElementById('audioSource');
-                const noAudioMessage = document.getElementById('noAudioMessage');
+    // Clear existing options
+    dropdown.innerHTML = '<option value="">Select a Building...</option>';
 
-                if (building.audio) {
-                    audioSource.src = building.audio;
-                    audioElement.style.display = 'block';
-                    noAudioMessage.style.display = 'none';
-                    audioElement.load(); // Load the new audio file
-                } else {
-                    audioElement.style.display = 'none';
-                    noAudioMessage.style.display = 'block';
-                }
+    buildingsData.forEach(building => {
+        if (Array.isArray(building.college)) {
+            if (building.college.includes(selectedCollege)) {
+                const option = document.createElement('option');
+                option.value = building.name;
+                option.textContent = building.name;
+                dropdown.appendChild(option);
             }
+        } else if (building.college === selectedCollege) {
+            const option = document.createElement('option');
+            option.value = building.name;
+            option.textContent = building.name;
+            dropdown.appendChild(option);
         }
+    });
+});
 
-        let routesData = []; // For routes data
-
-        // Fetch the XavierWalkingTourRoutes.json file
-        fetch('XavierWalkingTourRoutes.json')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log(data); // Check what data is being fetched
-                routesData = data["Xavier Walking Tour Routes"];
+// Add click event listeners to markers
+Object.keys(markers).forEach(buildingName => {
+        markers[buildingName].on('click', function() {
+            handleMarkerClick(buildingName);
+        });
+    });
 
 
-                // Populate the dropdown
-                const dropdown = document.getElementById('routeSelect');
-                routesData.forEach(route => {
-                    const option = document.createElement('option');
-                    option.value = route.name;
-                    option.textContent = route.name;
-                    dropdown.appendChild(option);
-                });
-            })
-            .catch(error => console.error('Error fetching the JSON file:', error));
+// Handle building selection from the dropdown
+document.getElementById('buildingSelect').addEventListener('change', (event) => {
+    const buildingName = event.target.value;
+    handleBuildingClick(buildingName);
+});
 
-        document.getElementById('selectButton').addEventListener('click', () => {
-            const selectedRouteName = document.getElementById('routeSelect').value;
-            const route = routesData.find(r => r.name === selectedRouteName);
+// Function to handle the building click event
+function handleBuildingClick(buildingName) {
+    console.log('Building clicked:', buildingName);
 
-            const routeDescriptionElement = document.getElementById('routeDescription');
+    // Default zoom level for all buildings
+    const zoomLevel = 18;  // Adjust this value for how far you want to zoom in
 
-            // Clear previous content
-            routeDescriptionElement.innerHTML = '';
-
-            if (route) {
-                if (route.description && route.description.length > 0) {
-                    // Create the main bulleted list
-                    const ul = document.createElement('ul');
-                    route.description.forEach(item => {
-                        const li = document.createElement('li');
-
-                        // Check if the item is a string (normal building) or an object (with nested items)
-                        if (typeof item === 'string') {
-                            li.textContent = item;  // Regular building name
-                        } else if (typeof item === 'object' && item.main) {
-                            li.textContent = item.main;  // Main building name
-
-                            // Create a sublist for nested items (e.g., rooms)
-                            if (item.sub && Array.isArray(item.sub)) {
-                                const subUl = document.createElement('ul');  // Sub list
-                                item.sub.forEach(subItem => {
-                                    const subLi = document.createElement('li');
-                                    subLi.textContent = subItem;  // Add each sub item (room)
-                                    subUl.appendChild(subLi);
-                                });
-                                li.appendChild(subUl);  // Append the sublist to the main list item
-                            }
-                        }
-                        ul.appendChild(li);  // Append the main list item to the list
-                    });
-
-                    // Append the list to the route description element
-                    routeDescriptionElement.appendChild(ul);
-                } else {
-                    routeDescriptionElement.textContent = 'No buildings listed for this route.';
-                }
-            } else {
-                // If no valid route is selected
-                routeDescriptionElement.textContent = 'Please select a valid route.';
-            }
-
+    // If no specific building is selected (i.e., the default option), show all markers and reset zoom
+    if (buildingName === "") {
+        // Add all markers back to the map
+        Object.keys(markers).forEach(name => {
+            map.addLayer(markers[name]);
         });
 
-        // Display image and information when a building is selected
-        document.getElementById('buildingSelect').addEventListener('change', (event) => {
-            const selectedBuilding = event.target.value;
-            const building = buildingsData.find(b => b.name === selectedBuilding);
+        // Reset the map to the default view and zoom level
+        map.setView([39.149, -84.473], 15); // Change this to your desired default location and zoom level
+        return;
+    }
 
+    // Otherwise, hide all markers
+    Object.keys(markers).forEach(name => {
+        map.removeLayer(markers[name]);
+    });
+
+    // Check if the marker exists for the clicked building
+    if (markers[buildingName]) {
+        // Add the selected marker back to the map
+        markers[buildingName].addTo(map);
+
+        // Pan to the marker's location and zoom in further
+        map.setView(markers[buildingName].getLatLng(), zoomLevel);
+
+    } else {
+        console.error('No marker found for:', buildingName);
+    }
+}
+
+//This handles when a user clicks on building marker on map
+function handleMarkerClick(buildingName) {
+        const building = buildingsData.find(b => b.name === buildingName);
+
+        if (building) {
+            // Update image
             const imageElement = document.getElementById('buildingImage');
+            imageElement.src = building.image;
+            imageElement.style.display = 'block';
+
+            // Update description
             const descriptionElement = document.getElementById('buildingDescription');
+            descriptionElement.textContent = building.description || 'No description available.';
+
+            // Update audio
             const audioElement = document.getElementById('buildingAudio');
             const audioSource = document.getElementById('audioSource');
             const noAudioMessage = document.getElementById('noAudioMessage');
 
-
-            if (building) {
-                imageElement.src = building.image; // Set the image source
-                imageElement.style.display = 'block'; // Show the image
-
-                descriptionElement.textContent = building.description || 'No description available.'; // Set the description
-
-                // Handle audio
-                if (building.audio && building.audio.trim !== '') {
-                    // If audio is available
-                    audioSource.src = building.audio;
-                    audioElement.style.display = 'block'; // Show the audio player
-                    noAudioMessage.style.display = 'none'; // Hide the "No audio available" message
-                    audioElement.load(); // Load the new audio file
-                } else {
-                    // If no audio is available
-                    audioElement.style.display = 'none'; // Hide the audio player
-                    noAudioMessage.style.display = 'block'; // Show the "No audio available" message
-                }
+            if (building.audio) {
+                audioSource.src = building.audio;
+                audioElement.style.display = 'block';
+                noAudioMessage.style.display = 'none';
+                audioElement.load(); // Load the new audio file
             } else {
-                // Reset the fields if nothing is selected
-                imageElement.src = '';
-                imageElement.style.display = 'none'; // Hide the image if no selection
-                descriptionElement.textContent = ''; // Clear the description
-                audioElement.style.display = 'none'; // Hide the audio if no selection
-                noAudioMessage.style.display = 'none'; // Hide the "No audio available" message
+                audioElement.style.display = 'none';
+                noAudioMessage.style.display = 'block';
+            }
+        }
+    }
+
+let routesData = []; // For routes data
+let routingControl; // To store the current route control
+
+// Function to get a walking route using OpenRouteService API with POST request
+function getWalkingRoute(waypoints) {
+    // Convert waypoints to the format required by OpenRouteService (array of [lng, lat] pairs)
+    const coordinates = waypoints.map(latlng => [latlng.lng, latlng.lat]);
+
+    const apiUrl = 'https://api.openrouteservice.org/v2/directions/foot-walking';
+
+    // Set up the POST request body with the coordinates
+    const body = JSON.stringify({
+        coordinates: coordinates
+    });
+
+    // Perform the API call with required headers
+    return fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+            'Content-Type': 'application/json',
+            'Authorization': '5b3ce3597851110001cf6248d516376c40f349ba875d77f773974725' // Replace with your actual API key
+        },
+        body: body // Send the coordinates as the request body
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch route: ' + response.statusText);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Extract the coordinates of the route from the response
+        return data.features[0].geometry.coordinates.map(coord => {
+            return L.latLng(coord[1], coord[0]); // Convert to Leaflet LatLng (lat, lng)
+        });
+    })
+    .catch(error => {
+        console.error('Error fetching the walking route:', error);
+    });
+}
+
+
+// Fetch the XavierWalkingTourRoutes.json file
+fetch('XavierWalkingTourRoutes.json')
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log(data); // Check what data is being fetched
+        routesData = data["Xavier Walking Tour Routes"];
+
+        // Populate the dropdown
+        const dropdown = document.getElementById('routeSelect');
+        routesData.forEach(route => {
+            const option = document.createElement('option');
+            option.value = route.name;
+            option.textContent = route.name;
+            dropdown.appendChild(option);
+        });
+    })
+    .catch(error => console.error('Error fetching the JSON file:', error));
+
+// Function to clear the currently drawn route
+function clearRoute() {
+    if (routingControl) {
+        map.removeLayer(routingControl); // Remove the current polyline from the map
+        routingControl = null; // Reset routing control
+    }
+}
+
+// Event listener for route selection
+document.getElementById('selectButton').addEventListener('click', () => {
+    const selectedRouteName = document.getElementById('routeSelect').value;
+    const route = routesData.find(r => r.name === selectedRouteName);
+
+    const routeDescriptionElement = document.getElementById('routeDescription');
+    
+    // Clear previous content
+    routeDescriptionElement.innerHTML = '';
+
+    // Clear any existing route lines from the map
+    clearRoute();
+
+    if (route) {
+        if (route.description && route.description.length > 0) {
+            // Create the main bulleted list
+            const ul = document.createElement('ul');
+            route.description.forEach(item => {
+                const li = document.createElement('li');
+
+                // Check if the item is a string (normal building) or an object (with nested items)
+                if (typeof item === 'string') {
+                    // Create a clickable span element for the building name
+                    const buildingSpan = document.createElement('span');
+                    buildingSpan.textContent = item;  // Regular building name
+                    buildingSpan.classList.add('clickable');  // Apply clickable style
+
+                    // Add click event to pan to the building
+                    buildingSpan.addEventListener('click', () => handleBuildingClick(item));
+                    
+                    li.appendChild(buildingSpan);  // Append the span to the list item
+                } else if (typeof item === 'object' && item.main) {
+                    // Main building with sub-items
+                    const buildingSpan = document.createElement('span');
+                    buildingSpan.textContent = item.main;  // Main building name
+                    buildingSpan.classList.add('clickable');  // Apply clickable style
+
+                    // Add click event to pan to the building
+                    buildingSpan.addEventListener('click', () => handleBuildingClick(item.main));
+
+                    li.appendChild(buildingSpan);  // Append the span to the list item
+
+                    // Create a sublist for nested items (e.g., rooms)
+                    if (item.sub && Array.isArray(item.sub)) {
+                        const subUl = document.createElement('ul');  // Sub list
+                        item.sub.forEach(subItem => {
+                            const subLi = document.createElement('li');
+
+                            // Create a clickable span for sub-item
+                            const subSpan = document.createElement('span');
+                            subSpan.textContent = subItem;  // Sub-item name (e.g., room)
+
+                            // Make the sub-item clickable only if it corresponds to a marker
+                            if (markers[subItem]) {
+                                subSpan.classList.add('clickable');  // Apply clickable style
+                                subSpan.addEventListener('click', () => handleBuildingClick(subItem));
+                            }
+
+                            subLi.appendChild(subSpan);  // Add sub-item span to the list item
+                            subUl.appendChild(subLi);  // Add the sub-item list item to the sublist
+                        });
+                        li.appendChild(subUl);  // Append the sublist to the main list item
+                    }
+                }
+                ul.appendChild(li);  // Append the main list item to the list
+            });
+
+            // Append the list to the route description element
+            routeDescriptionElement.appendChild(ul);
+
+            // Plot the route on the map if coordinates are available
+            if (route.coordinates && route.coordinates.length > 0) {
+                const waypoints = route.coordinates.map(coord => {
+                    return L.latLng(coord.lat, coord.lng);
+                });
+
+                // Fetch the walking route for all waypoints from the API
+                getWalkingRoute(waypoints).then(routeCoords => {
+                    // Plot the route as a polyline on the map
+                    routingControl = L.polyline(routeCoords, {
+                        color: 'blue',
+                        weight: 5,
+                        opacity: 0.7
+                    }).addTo(map);
+
+                    // Pan and zoom the map to fit the route
+                    map.fitBounds(routingControl.getBounds());
+                }).catch(error => console.error('Error fetching the walking route:', error));
             }
 
+        } else {
+            routeDescriptionElement.textContent = 'No buildings listed for this route.';
+        }
+    } else {
+        // If no valid route is selected
+        routeDescriptionElement.textContent = 'Please select a valid route.';
+    }
+
+});
 
 
-        });
+
+
+
+
+    // Display image and information when a building is selected
+    document.getElementById('buildingSelect').addEventListener('change', (event) => {
+    const selectedBuilding = event.target.value;
+    const building = buildingsData.find(b => b.name === selectedBuilding);
+    
+    const imageElement = document.getElementById('buildingImage');
+    const descriptionElement = document.getElementById('buildingDescription');
+    const audioElement = document.getElementById('buildingAudio');
+    const audioSource = document.getElementById('audioSource');
+    const noAudioMessage = document.getElementById('noAudioMessage'); 
+
+    
+    if (building) {
+        imageElement.src = building.image; // Set the image source
+        imageElement.style.display = 'block'; // Show the image
+        
+        descriptionElement.textContent = building.description || 'No description available.'; // Set the description
+
+        // Handle audio
+        if (building.audio && building.audio.trim !== '') {
+            // If audio is available
+            audioSource.src = building.audio;
+            audioElement.style.display = 'block'; // Show the audio player
+            noAudioMessage.style.display = 'none'; // Hide the "No audio available" message
+            audioElement.load(); // Load the new audio file
+        } else {
+            // If no audio is available
+            audioElement.style.display = 'none'; // Hide the audio player
+            noAudioMessage.style.display = 'block'; // Show the "No audio available" message
+        }
+    } else {
+    // Reset the fields if nothing is selected
+        imageElement.src = '';
+        imageElement.style.display = 'none'; // Hide the image if no selection
+        descriptionElement.textContent = ''; // Clear the description
+        audioElement.style.display = 'none'; // Hide the audio if no selection
+        noAudioMessage.style.display = 'none'; // Hide the "No audio available" message
+        }
+    
+
+
+});
 
 
 
     </script>
 </body>
-
 </html>
