@@ -202,12 +202,17 @@
 
     <!-- Area for displaying the building image -->
     <div id="imageContainer">
+        <h3>Building</h3>
+        <p id="buildingName"></p>
+
         <h3>Building Image</h3>
         <img id="buildingImage" src="" alt="Building Image"
             style="display: none; max-width: 75%; height: auto;" />
     
         <!-- Area for building information -->
         <div id="buildingInfo" style="margin-top: 10px;">
+
+
             <h3>Building Information</h3>
             <p id="buildingDescription"></p>
     
@@ -385,6 +390,10 @@ function handleMarkerClick(buildingName) {
         const building = buildingsData.find(b => b.name === buildingName);
 
         if (building) {
+            //Update building name
+            const nElement = document.getElementById('buildingName');
+            nElement.textContent = building.name || 'No name available.';
+
             // Update image
             const imageElement = document.getElementById('buildingImage');
             imageElement.src = building.image;
@@ -408,6 +417,11 @@ function handleMarkerClick(buildingName) {
                 audioElement.style.display = 'none';
                 noAudioMessage.style.display = 'block';
             }
+
+            //Scroll to Building Info
+            document.getElementById("imageContainer").scrollIntoView({
+                behavior: "smooth"
+            });
         }
     }
 
