@@ -159,7 +159,7 @@
                         <a class="nav-link" href="#sidebar">Routes</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#routesContainer">Help</a>
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#helpModal">Help</a>
                     </li>
                 </ul>
             </div>
@@ -228,6 +228,29 @@
 </div>
 </div>
 </div>
+<div class="modal fade" id="helpModal" tabindex="-1" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="helpModalLabel">Help Guide</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Welcome to the Xavier Campus Map!</p>
+                <ul>
+                    <li>Use the <strong>Map</strong> tab to view campus locations.</li>
+                    <li>Go to the <strong>Routes</strong> tab to find routes to various locations.</li>
+                    <li>Select buildings from the dropdown list to get detailed information, including images and audio.</li>
+                    <li>For more guidance, contact the campus support team.</li>
+                </ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
     <script>
     // Initialize the map and set its view to the chosen geographical coordinates and zoom level
