@@ -8,7 +8,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
         integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -254,11 +253,10 @@
 
     <script>
     // Initialize the map and set its view to the chosen geographical coordinates and zoom level
-    const map = L.map('map').setView([39.1487, -84.4780], 15);
+    var map = L.map('map').setView([39.1487, -84.4780], 13);
 
     // Add a tile layer to the map (you can use OpenStreetMap tiles)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
@@ -291,7 +289,6 @@
                     }).addTo(map).bindPopup("You are here!");
                 }
 
-               
                 map.setView([lat, lng], 15);
             },
             (error) => {
@@ -445,7 +442,7 @@ function handleBuildingClick(buildingName) {
     if (markers[buildingName]) {
         // Add the selected marker back to the map
         markers[buildingName].addTo(map);
-
+        clearRoute();
         // Pan to the marker's location and zoom in further
         map.setView(markers[buildingName].getLatLng(), zoomLevel);
 
@@ -459,6 +456,7 @@ function handleMarkerClick(buildingName) {
         const building = buildingsData.find(b => b.name === buildingName);
 
         if (building) {
+
             //Update building name
             const nElement = document.getElementById('buildingName');
             nElement.textContent = building.name || 'No name available.';
@@ -497,46 +495,82 @@ function handleMarkerClick(buildingName) {
 let routesData = []; // For routes data
 let routingControl; // To store the current route control
 
-// Function to get a walking route using OpenRouteService API with POST request
-function getWalkingRoute(waypoints) {
-    // Convert waypoints to the format required by OpenRouteService (array of [lng, lat] pairs)
-    const coordinates = waypoints.map(latlng => [latlng.lng, latlng.lat]);
-
-    const apiUrl = 'https://api.openrouteservice.org/v2/directions/foot-walking';
-
-    // Set up the POST request body with the coordinates
-    const body = JSON.stringify({
-        coordinates: coordinates
-    });
-
-    // Perform the API call with required headers
-    return fetch(apiUrl, {
-        method: 'POST',
-        headers: {
-            'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-            'Content-Type': 'application/json',
-            'Authorization': '5b3ce3597851110001cf6248d516376c40f349ba875d77f773974725' // Replace with your actual API key
-        },
-        body: body // Send the coordinates as the request body
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Failed to fetch route: ' + response.statusText);
-        }
-        return response.json();
-    })
-    .then(data => {
-        // Extract the coordinates of the route from the response
-        return data.features[0].geometry.coordinates.map(coord => {
-            return L.latLng(coord[1], coord[0]); // Convert to Leaflet LatLng (lat, lng)
-        });
-    })
-    .catch(error => {
-        console.error('Error fetching the walking route:', error);
-    });
+// Function to clear the currently drawn route
+function clearRoute() {
+    if (routingControl) {
+        map.removeLayer(routingControl); // Remove the current polyline from the map
+        routingControl = null; // Reset routing control
+    }
 }
 
+// Function to show only the markers included in the selected route
+function showMarkersForRoute(route) {
+    // Hide all markers initially
+    Object.values(markers).forEach(marker => marker.removeFrom(map));
 
+// Loop through the route's description to show only relevant markers
+if (route.description) {
+    let stepNumber = 1;
+
+    if (route.name == "Ramp Friendly Tour"){
+        const routeDesc = route.description.join(" ");
+        Object.keys(markers).forEach(item => {
+            if (routeDesc.includes(item)) {
+                markers[item].addTo(map);
+                markers[item].bindTooltip(
+                    `<span class="marker-tooltip">${stepNumber}</span>`,
+                    {
+                        permanent: true,  // Keeps tooltip always visible
+                        direction: 'right', // Positions the tooltip on the right side
+                        className: 'step-number-tooltip'
+                    }
+                );
+                stepNumber++;
+            }
+        });
+    } else {
+        route.description.forEach(item => {
+            if (typeof item === 'string' && markers[item]) {
+                markers[item].addTo(map);
+                markers[item].bindTooltip(
+                        `<span class="marker-tooltip">${stepNumber}</span>`,
+                        {
+                            permanent: true,
+                            direction: 'right',
+                            className: 'step-number-tooltip'
+                        }
+                    );
+                stepNumber++;
+
+            } else if (typeof item === 'object' && item.main) {
+                // Add the main building marker if it exists
+                if (markers[item.main]) {
+                    markers[item.main].addTo(map);
+
+                    markers[item.main].bindTooltip(
+                            `<span class="marker-tooltip">${stepNumber}</span>`,
+                            {
+                                permanent: true,
+                                direction: 'right',
+                                className: 'step-number-tooltip'
+                            }
+                        );
+                    stepNumber++;
+                }
+                
+                // Add sub-item markers if they exist in markers
+                if (item.sub && Array.isArray(item.sub)) {
+                    item.sub.forEach(subItem => {
+                        if (markers[subItem]) {
+                            markers[subItem].addTo(map);
+                        }
+                    });
+                }
+            }
+        });
+    }
+}
+}
 // Fetch the XavierWalkingTourRoutes.json file
 fetch('XavierWalkingTourRoutes.json')
     .then(response => {
@@ -560,58 +594,58 @@ fetch('XavierWalkingTourRoutes.json')
     })
     .catch(error => console.error('Error fetching the JSON file:', error));
 
-// Function to clear the currently drawn route
-function clearRoute() {
-    if (routingControl) {
-        map.removeLayer(routingControl); // Remove the current polyline from the map
-        routingControl = null; // Reset routing control
-    }
-}
 
 // Event listener for route selection
 document.getElementById('selectButton').addEventListener('click', () => {
     const selectedRouteName = document.getElementById('routeSelect').value;
     const route = routesData.find(r => r.name === selectedRouteName);
+    console.log("Selected route:", route); // Log selected route
 
     const routeDescriptionElement = document.getElementById('routeDescription');
     
     // Clear previous content
     routeDescriptionElement.innerHTML = '';
-
     // Clear any existing route lines from the map
     clearRoute();
 
+    
+
     if (route) {
+
+        showMarkersForRoute(route);
+        const routeDescriptionElement = document.getElementById('routeDescription');
+        routeDescriptionElement.innerHTML = '';
+
         if (route.description && route.description.length > 0) {
             // Create the main bulleted list
             const ul = document.createElement('ul');
             route.description.forEach(item => {
                 const li = document.createElement('li');
+                const buildingSpan = document.createElement('span');
 
                 // Check if the item is a string (normal building) or an object (with nested items)
                 if (typeof item === 'string') {
-                    // Create a clickable span element for the building name
-                    const buildingSpan = document.createElement('span');
                     buildingSpan.textContent = item;  // Regular building name
-                    buildingSpan.classList.add('clickable');  // Apply clickable style
-
-                    // Add click event to pan to the building
-                    buildingSpan.addEventListener('click', () => handleBuildingClick(item));
+                    if (route.name !== "Ramp Friendly Tour"){
                     
+                        buildingSpan.classList.add('clickable');  // Apply clickable style
+
+                        // Add click event to pan to the building
+                        buildingSpan.addEventListener('click', () => handleBuildingClick(item));
+                    }
                     li.appendChild(buildingSpan);  // Append the span to the list item
                 } else if (typeof item === 'object' && item.main) {
-                    // Main building with sub-items
-                    const buildingSpan = document.createElement('span');
-                    buildingSpan.textContent = item.main;  // Main building name
-                    buildingSpan.classList.add('clickable');  // Apply clickable style
+                    buildingSpan.textContent = item.main;
 
-                    // Add click event to pan to the building
-                    buildingSpan.addEventListener('click', () => handleBuildingClick(item.main));
-
+                    if (route.name !== "Ramp Friendly Tour"){
+                        buildingSpan.classList.add('clickable');
+                        buildingSpan.addEventListener('click', () => handleBuildingClick(item.main));
+                    }
                     li.appendChild(buildingSpan);  // Append the span to the list item
 
                     // Create a sublist for nested items (e.g., rooms)
                     if (item.sub && Array.isArray(item.sub)) {
+                    
                         const subUl = document.createElement('ul');  // Sub list
                         item.sub.forEach(subItem => {
                             const subLi = document.createElement('li');
@@ -621,9 +655,10 @@ document.getElementById('selectButton').addEventListener('click', () => {
                             subSpan.textContent = subItem;  // Sub-item name (e.g., room)
 
                             // Make the sub-item clickable only if it corresponds to a marker
-                            if (markers[subItem]) {
+                            if (route.name !== "Ramp Friendly Tour" && markers[subItem]) {
                                 subSpan.classList.add('clickable');  // Apply clickable style
                                 subSpan.addEventListener('click', () => handleBuildingClick(subItem));
+                                markers[subItem].addTo(map);
                             }
 
                             subLi.appendChild(subSpan);  // Add sub-item span to the list item
@@ -640,38 +675,61 @@ document.getElementById('selectButton').addEventListener('click', () => {
 
             // Plot the route on the map if coordinates are available
             if (route.coordinates && route.coordinates.length > 0) {
-                const waypoints = route.coordinates.map(coord => {
-                    return L.latLng(coord.lat, coord.lng);
-                });
+                
+                // Extract coordinates in the ORS format
+                const waypoints = route.coordinates.map(coord => [coord.lng, coord.lat]);
 
-                // Fetch the walking route for all waypoints from the API
-                getWalkingRoute(waypoints).then(routeCoords => {
-                    // Plot the route as a polyline on the map
-                    routingControl = L.polyline(routeCoords, {
-                        color: 'blue',
-                        weight: 5,
-                        opacity: 0.7
-                    }).addTo(map);
+                // ORS Request
+                const request = new XMLHttpRequest();
+                let profile = "foot-walking"; // Default profile
+                if (route.name === "Ramp Friendly Tour") { 
+                    profile = "wheelchair";
+                }
 
-                    // Pan and zoom the map to fit the route
-                    map.fitBounds(routingControl.getBounds());
-                }).catch(error => console.error('Error fetching the walking route:', error));
+                const apiUrl = `https://api.openrouteservice.org/v2/directions/${profile}/geojson`
+                request.open('POST', apiUrl);
+
+                request.setRequestHeader('Accept', 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8');
+                request.setRequestHeader('Content-Type', 'application/json');
+                request.setRequestHeader('Authorization', '5b3ce3597851110001cf6248d516376c40f349ba875d77f773974725');
+
+                request.onreadystatechange = function () {
+                    if (this.readyState === 4) {
+                        console.log('Status:', this.status);
+                        console.log('Headers:', this.getAllResponseHeaders());
+                        console.log('Body:', this.responseText);
+
+                        if (this.status === 200) {
+                            const response = JSON.parse(this.responseText);
+                            const routeCoords = response.features[0].geometry.coordinates.map(coord => [coord[1], coord[0]]); // Convert to [lat, lng]
+
+                            clearRoute();
+                            // Draw the route on the map
+                            routingControl = L.polyline(routeCoords, {
+                                color: 'blue', 
+                                weight: 5,
+                                opacity: 0.7
+                            }).addTo(map);
+
+                            map.fitBounds(routingControl.getBounds());
+                        } else {
+                            console.error('Error fetching the route from ORS API:', this.status);
+                        }
+                    }
+                };
+
+                const body = JSON.stringify({ "coordinates": waypoints });
+                console.log("Request body:", body); // Log for debugging
+                request.send(body);
             }
-
         } else {
             routeDescriptionElement.textContent = 'No buildings listed for this route.';
         }
     } else {
-        // If no valid route is selected
         routeDescriptionElement.textContent = 'Please select a valid route.';
     }
-
+  
 });
-
-
-
-
-
 
     // Display image and information when a building is selected
     document.getElementById('buildingSelect').addEventListener('change', (event) => {
