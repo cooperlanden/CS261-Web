@@ -254,12 +254,58 @@
 
     <script>
     // Initialize the map and set its view to the chosen geographical coordinates and zoom level
-    var map = L.map('map').setView([39.1487, -84.4780], 13);
+    const map = L.map('map').setView([39.1487, -84.4780], 15);
 
     // Add a tile layer to the map (you can use OpenStreetMap tiles)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
+
+    //live tracking
+    function trackUserLocation(){
+        if(!navigator.geolocation){
+            alert("Geolocation not supported by your browser");
+            return;
+        }
+    }
+    let userMarker;
+
+       
+        navigator.geolocation.watchPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+
+              
+                if (userMarker) {
+                    userMarker.setLatLng([lat, lng]);
+                } else {
+                
+                    userMarker = L.marker([lat, lng], {
+                        icon: L.icon({
+                            iconUrl: 'https://example.com/location-icon.png',
+                            iconSize: [50, 30],  
+                            iconAnchor: [15, 15]
+                        })
+                    }).addTo(map).bindPopup("You are here!");
+                }
+
+               
+                map.setView([lat, lng], 15);
+            },
+            (error) => {
+                console.error("Error getting location: ", error);
+                alert("Unable to retrieve your location.");
+            },
+            {
+                enableHighAccuracy: true, 
+                timeout: 5000,          
+                maximumAge: 0            
+            }
+        );
+    
+    map.whenReady(trackUserLocation);
 
     // Load the .osm file (you may need to convert it to GeoJSON format first)
     fetch('path/to/your/map.osm')
