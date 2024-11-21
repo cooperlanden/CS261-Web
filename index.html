@@ -138,6 +138,14 @@
         .navbar-brand:hover, .nav-link:hover {
             color: #F4F6F8 !important;
         }
+        .btn-xavier-blue {
+            background-color: #0C2340;
+            color: white; /* White text for contrast */
+            border: none; /* Remove default borders */
+        }
+        .btn-xavier-blue:hover {
+            background-color: #1A3D63; /* Slightly lighter blue for hover effect */
+        }
     </style>
 </head>
 
@@ -159,6 +167,9 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#helpModal">Help</a>
+                    </li>
+                    <li>
+                        <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#loginModal">Login</a>
                     </li>
                 </ul>
             </div>
@@ -249,9 +260,39 @@
         </div>
     </div>
 </div>
+   <!-- Login Modal -->
+   <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="loginModalLabel">Student Login</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">School Email</label>
+                        <input type="email" id="email" class="form-control" placeholder="student@xavier.edu" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                    </div>
+                    <div class="mb-3">
+                        <button type="submit" class="btn btn-xavier-blue w-100">Login</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 
     <script>
+        
     // Initialize the map and set its view to the chosen geographical coordinates and zoom level
     var map = L.map('map').setView([39.1487, -84.4780], 13);
 
@@ -774,7 +815,24 @@ document.getElementById('selectButton').addEventListener('click', () => {
 
 });
 
+// Login form submission handling
+document.getElementById('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault(); // Prevent form from submitting
 
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+
+    const schoolEmailPattern = /^[a-zA-Z0-9._%+-]+@xavier\.edu$/;
+
+    if (schoolEmailPattern.test(email)) {
+        // Example: Simulate successful login
+        alert('Login successful!');
+        const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+        loginModal.hide(); // Close modal
+    } else {
+        alert('Please enter a valid school email address.');
+    }
+});
 
     </script>
 </body>
