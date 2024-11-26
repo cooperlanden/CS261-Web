@@ -22,7 +22,7 @@
             flex-wrap: nowrap;*/
             margin: 0;
             padding: 20px;
-            font-family: arial, sana-serif;
+            font-family: 'Helvetica', sans-serif;
             background-color: #F4F6F8; 
             color: #0C2340; /* Navy text color */
         }
@@ -33,7 +33,19 @@
             border: 2px solid #0C2340;
             /* Space between map and list */
         }
-
+        #resetMarkersButton {
+            display: block;
+            margin: 10px auto 0; /* Center the button below the map */
+            padding: 5px 10px; /* Small padding for a compact size */
+            font-size: 12px; /* Smaller font size */
+            border: 1px solid #ccc; /* Light border */
+            border-radius: 5px; /* Rounded corners */
+            margin-bottom: 10px;
+            background-color: #0C2340; /* Light background */
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Slight shadow for a modern look */
+            transition: background-color 0.3s; /* Smooth hover effect */
+        }
         #sidebar {
             flex: 0 0 35%;
             /* Sidebar takes 35% of the width */
@@ -47,6 +59,7 @@
             margin-right: 275px;
         }
         h1, h2, h3 {
+            font-family: 'Helvetica', sans-serif;
             color: #0C2340;
             margin-bottom: 10px;
         }
@@ -116,6 +129,7 @@
         #buildingList li:last-child {
             border-bottom: none; /* Remove separator for the last item */
         }
+
             .clickable {
             cursor: pointer;
             color: #007BFF; /* Link color */
@@ -137,6 +151,17 @@
 
         .navbar-brand:hover, .nav-link:hover {
             color: #F4F6F8 !important;
+        }
+
+        .step-number-tooltip {
+            background-color: #1A1AFF; /* Blue background */
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+            border-radius: 50%;
+            padding: 5px 10px;
+            border: 2px solid white;
+            text-align: center;
         }
         .btn-xavier-blue {
             background-color: #0C2340;
@@ -183,14 +208,17 @@
             <!-- Map column (8 parts of the row) -->
             <div class="col-lg-8 p-1">
                 <div id="map"></div>
-
+                <button id="resetMarkersButton" class="small-button"">Show All Markers</button>
+        
 
         <h2>Routes to Take</h2>
         <select id="routeSelect">
+            <option value="default">Select a Route...</option>
         </select>
         <button id="selectButton">Select</button>
         <p id="routeDescription"></p>
         </div>
+        
 
 
     
@@ -212,22 +240,18 @@
 
     <!-- Area for displaying the building image -->
     <div id="imageContainer">
-        <h3>Building</h3>
+        <h2 id="buildingHeader">Select a Building for More Information</h2>
         <p id="buildingName"></p>
 
-        <h3>Building Image</h3>
+
         <img id="buildingImage" src="" alt="Building Image"
             style="display: none; max-width: 75%; height: auto;" />
     
         <!-- Area for building information -->
         <div id="buildingInfo" style="margin-top: 10px;">
-
-
-            <h3>Building Information</h3>
             <p id="buildingDescription"></p>
     
             <!-- Audio section -->
-            <h3>Building Audio</h3>
             <audio id="buildingAudio" controls style="display: none;">
                 <source id="audioSource" src="" type="audio/mpeg">
                 Your browser does not support the audio element.
@@ -250,8 +274,12 @@
                 <ul>
                     <li>Use the <strong>Map</strong> tab to view campus locations.</li>
                     <li>Go to the <strong>Routes</strong> tab to find routes to various locations.</li>
-                    <li>Select buildings from the dropdown list to get detailed information, including images and audio.</li>
-                    <li>For more guidance, contact the campus support team.</li>
+                    <li>For more guidance, contact the campus support team: 
+                        <a href="https://www.xavier.edu/undergraduate-admission/contact" target="_blank">Contact Us</a>
+                    </li>
+                    <li>Visit Xavier's website for more information about campus tours: 
+                        <a href="https://www.xavier.edu/undergraduate-admission/visit/index" target="_blank">Visit Campus</a>
+                    </li>
                 </ul>
             </div>
             <div class="modal-footer">
@@ -260,8 +288,8 @@
         </div>
     </div>
 </div>
-   <!-- Login Modal -->
-   <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+<!-- Login Modal -->
+<div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -292,7 +320,6 @@
 
 
     <script>
-        
     // Initialize the map and set its view to the chosen geographical coordinates and zoom level
     var map = L.map('map').setView([39.1487, -84.4780], 13);
 
@@ -301,6 +328,14 @@
         attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
+    //live tracking
+    function trackUserLocation() {
+    if (!navigator.geolocation) {
+        alert("Geolocation not supported by your browser");
+        return;
+    }
+    }
+    
     //live tracking
     function trackUserLocation(){
         if(!navigator.geolocation){
@@ -459,6 +494,7 @@ document.getElementById('buildingSelect').addEventListener('change', (event) => 
 function handleBuildingClick(buildingName) {
     console.log('Building clicked:', buildingName);
 
+
     // Default zoom level for all buildings
     const zoomLevel = 18;  // Adjust this value for how far you want to zoom in
 
@@ -469,13 +505,22 @@ function handleBuildingClick(buildingName) {
             map.addLayer(markers[name]);
         });
 
+    
         // Reset the map to the default view and zoom level
         map.setView([39.149, -84.473], 15); // Change this to your desired default location and zoom level
+        
+        // Reset the building header
+        const buildingHeaderElement = document.getElementById('buildingHeader');
+        if (buildingHeaderElement) {
+            buildingHeaderElement.textContent = "No building selected";
+        }
+
         return;
-    }
+    } 
 
     // Otherwise, hide all markers
     Object.keys(markers).forEach(name => {
+        console.log(`Clicked on ${buildingName}`);
         map.removeLayer(markers[name]);
     });
 
@@ -483,12 +528,24 @@ function handleBuildingClick(buildingName) {
     if (markers[buildingName]) {
         // Add the selected marker back to the map
         markers[buildingName].addTo(map);
-        clearRoute();
         // Pan to the marker's location and zoom in further
         map.setView(markers[buildingName].getLatLng(), zoomLevel);
-
+        
     } else {
         console.error('No marker found for:', buildingName);
+    }
+    // Update the building name header
+    const building = buildingsData.find(b => b.name === buildingName);
+    const buildingHeaderElement = document.getElementById('buildingHeader');
+    if (buildingHeaderElement) {
+        buildingHeaderElement.textContent = building ? building.name : 'No Name Available.';
+    }
+
+    const selectedBuildingNameElement = document.getElementById('selectedBuildingName');
+    if (buildingName) {
+        selectedBuildingNameElement.textContent = buildingName;
+    } else {
+        selectedBuildingNameElement.textContent = "No Building Selected";
     }
 }
 
@@ -498,9 +555,11 @@ function handleMarkerClick(buildingName) {
 
         if (building) {
 
-            //Update building name
-            const nElement = document.getElementById('buildingName');
-            nElement.textContent = building.name || 'No name available.';
+            // Update building header to the selected building name
+            const buildingHeaderElement = document.getElementById('buildingHeader');
+            if (buildingHeaderElement) {
+                buildingHeaderElement.textContent = building.name || 'No name available.';
+            }
 
             // Update image
             const imageElement = document.getElementById('buildingImage');
@@ -525,6 +584,40 @@ function handleMarkerClick(buildingName) {
                 audioElement.style.display = 'none';
                 noAudioMessage.style.display = 'block';
             }
+
+            // If no specific building is selected (i.e., the default option), show all markers and reset zoom
+            if (buildingName === "") {
+                // Add all markers back to the map
+                Object.keys(markers).forEach(name => {
+                    map.addLayer(markers[name]);
+                });
+
+            
+                // Reset the map to the default view and zoom level
+                map.setView([39.149, -84.473], 15); // Change this to your desired default location and zoom level
+                return;
+            } 
+
+            // Otherwise, hide all markers
+            Object.keys(markers).forEach(name => {
+                console.log(`Clicked on ${buildingName}`);
+                map.removeLayer(markers[name]);
+            });
+
+             // Hide all markers except the selected one
+        Object.keys(markers).forEach(name => {
+            if (name === buildingName) {
+                markers[name].addTo(map); // Keep the selected marker visible
+            } else {
+                map.removeLayer(markers[name]); // Remove other markers from the map
+            }
+        });
+
+        // Pan to the selected marker and zoom in
+        const zoomLevel = 18; // Adjust zoom level as needed
+        if (markers[buildingName]) {
+            map.setView(markers[buildingName].getLatLng(), zoomLevel);
+        }
 
             //Scroll to Building Info
             document.getElementById("imageContainer").scrollIntoView({
@@ -552,6 +645,10 @@ function showMarkersForRoute(route) {
 // Loop through the route's description to show only relevant markers
 if (route.description) {
     let stepNumber = 1;
+
+    if (route.name == "Select a Route..."){
+        Object.values(markers).forEach(marker => marker.unbindTooltip());
+    }
 
     if (route.name == "Ramp Friendly Tour"){
         const routeDesc = route.description.join(" ");
@@ -639,6 +736,22 @@ fetch('XavierWalkingTourRoutes.json')
 // Event listener for route selection
 document.getElementById('selectButton').addEventListener('click', () => {
     const selectedRouteName = document.getElementById('routeSelect').value;
+    // Clear existing route and tooltips
+    clearRoute();
+    Object.values(markers).forEach(marker => marker.removeFrom(map));
+
+    if (selectedRouteName === "default") {
+        // If "Select a Route..." is selected, unbind all tooltips and show all markers
+        Object.values(markers).forEach(marker => {
+            marker.unbindTooltip();
+            marker.addTo(map);
+        });
+         // Reset description and map view
+         const routeDescriptionElement = document.getElementById('routeDescription');
+        map.setView([39.149, -84.473], 15); // Default map center and zoom
+        return; // Exit early
+    }
+
     const route = routesData.find(r => r.name === selectedRouteName);
     console.log("Selected route:", route); // Log selected route
 
@@ -648,8 +761,16 @@ document.getElementById('selectButton').addEventListener('click', () => {
     routeDescriptionElement.innerHTML = '';
     // Clear any existing route lines from the map
     clearRoute();
+    Object.values(markers).forEach(marker => marker.removeFrom(map));
 
-    
+    if (!selectedRouteName) {
+        // Default option selected, show all markers and reset map
+        Object.values(markers).forEach(marker => marker.addTo(map));
+        map.setView([39.149, -84.473], 15); // Reset to default center and zoom
+        const routeDescriptionElement = document.getElementById('routeDescription');
+        routeDescriptionElement.textContent = "Please select a route from the dropdown.";
+        return; // Exit early
+    }
 
     if (route) {
 
@@ -815,6 +936,76 @@ document.getElementById('selectButton').addEventListener('click', () => {
 
 });
 
+// Event listener for the "Show All Markers" button
+document.getElementById('resetMarkersButton').addEventListener('click', () => {
+    // Show all markers on the map
+    Object.keys(markers).forEach(name => {
+        map.addLayer(markers[name]);
+    });
+
+    // Reset the map view to the default location and zoom level
+    map.setView([39.149, -84.473], 15); // Adjust the coordinates and zoom level as needed
+
+    // Reset dropdown to the default option
+    const buildingSelect = document.getElementById('buildingSelect');
+    if (buildingSelect) {
+        buildingSelect.value = ""; // Ensure it resets to the "Select a building..." option
+    }
+
+    // Clear building information
+    const buildingHeaderElement = document.getElementById('buildingHeader');
+    if (buildingHeaderElement) {
+        buildingHeaderElement.textContent = "Select a Building for More Information";
+    }
+
+    const imageElement = document.getElementById('buildingImage');
+    if (imageElement) {
+        imageElement.src = ""; // Clear the image source
+        imageElement.style.display = 'none'; // Hide the image
+    }
+
+    const descriptionElement = document.getElementById('buildingDescription');
+    if (descriptionElement) {
+        descriptionElement.textContent = ""; // Clear the description
+    }
+
+    const audioElement = document.getElementById('buildingAudio');
+    const noAudioMessage = document.getElementById('noAudioMessage');
+    if (audioElement) {
+        audioElement.style.display = 'none'; // Hide the audio player
+    }
+    if (noAudioMessage) {
+        noAudioMessage.style.display = 'none'; // Hide the "no audio" message
+    }
+
+    // Optionally reset the selected building name display
+    const selectedBuildingNameElement = document.getElementById('selectedBuildingName');
+    if (selectedBuildingNameElement) {
+        selectedBuildingNameElement.textContent = "No building selected";
+    }
+});
+
+
+
+// Function to reset all markers on the map
+function resetMarkers() {
+    // Add all markers back to the map
+    Object.keys(markers).forEach(name => {
+        if (!map.hasLayer(markers[name])) {
+            markers[name].addTo(map);
+        }
+    clearRoute();
+    Object.values(markers).forEach(marker => marker.unbindTooltip());
+    });
+
+    // Reset map view to fit all markers
+    const group = L.featureGroup(Object.values(markers)); // Create a feature group with all markers
+    map.fitBounds(group.getBounds()); // Adjust map to fit all markers
+}
+
+// Attach event listener to the button
+document.getElementById('resetMarkersButton').addEventListener('click', resetMarkers);
+
 // Login form submission handling
 document.getElementById('loginForm').addEventListener('submit', function (e) {
     e.preventDefault(); // Prevent form from submitting
@@ -833,6 +1024,7 @@ document.getElementById('loginForm').addEventListener('submit', function (e) {
         alert('Please enter a valid school email address.');
     }
 });
+
 
     </script>
 </body>
